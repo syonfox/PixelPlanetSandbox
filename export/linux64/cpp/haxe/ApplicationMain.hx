@@ -635,7 +635,7 @@ class ApplicationMain {
 		
 		config = {
 			
-			build: "247",
+			build: "256",
 			company: "Syon",
 			file: "PixelPlanets",
 			fps: 60,
