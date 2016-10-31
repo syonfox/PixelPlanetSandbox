@@ -57,8 +57,8 @@ class ApplicationMain {
 				
 				#if mobile
 				
-				forceWidth = 640;
-				forceHeight = 480;
+				forceWidth = 1900;
+				forceHeight = 1000;
 				
 				container = new flash.display.Sprite ();
 				barA = new flash.display.Sprite ();
@@ -127,7 +127,7 @@ class ApplicationMain {
 				}
 				
 			},
-			640, 480, 
+			1900, 1000, 
 			60, 
 			0,
 			(true ? flash.Lib.HARDWARE : 0) |
@@ -248,13 +248,13 @@ class ScaledStage extends flash.display.Stage {
 	
 	private override function get_stageHeight ():Int {
 		
-		return 480;
+		return 1000;
 	
 	}
 	
 	private override function get_stageWidth ():Int {
 		
-		return 640;
+		return 1900;
 	
 	}
 	
@@ -325,11 +325,11 @@ class ApplicationMain {
 		wx.App.boot (function () {
 			
 			
-			frame = wx.Frame.create (null, null, "PixelPlanets", null, { width: 640, height: 480 });
+			frame = wx.Frame.create (null, null, "PixelPlanets", null, { width: 1900, height: 1000 });
 			
 			
 			#if openfl
-			var stage = wx.NMEStage.create (frame, null, null, { width: 640, height: 480 });
+			var stage = wx.NMEStage.create (frame, null, null, { width: 1900, height: 1000 });
 			#end
 			
 			var hasMain = false;
@@ -455,6 +455,126 @@ class ApplicationMain {
 		types.push (lime.Assets.AssetType.IMAGE);
 		
 		
+		urls.push ("flixel/flixel-ui/img/chrome_inset.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/radio.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/invis.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/box.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/button.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/plus_mark.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/tab.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/dropdown_mark.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/check_box.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/tooltip_arrow.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/swatch.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/button_arrow_left.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/chrome_light.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/chrome.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/tab_back.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/hilight.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/radio_dot.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/button_toggle.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/button_arrow_down.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/button_thin.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/finger_big.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/chrome_flat.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/minus_mark.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/button_arrow_right.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/finger_small.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/button_arrow_up.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/img/check_mark.png");
+		types.push (lime.Assets.AssetType.IMAGE);
+		
+		
+		urls.push ("flixel/flixel-ui/xml/default_loading_screen.xml");
+		types.push (lime.Assets.AssetType.TEXT);
+		
+		
+		urls.push ("flixel/flixel-ui/xml/default_popup.xml");
+		types.push (lime.Assets.AssetType.TEXT);
+		
+		
+		urls.push ("flixel/flixel-ui/xml/defaults.xml");
+		types.push (lime.Assets.AssetType.TEXT);
+		
+		
 		
 		if (config.assetsPrefix != null) {
 			
@@ -515,7 +635,7 @@ class ApplicationMain {
 		
 		config = {
 			
-			build: "208",
+			build: "247",
 			company: "Syon",
 			file: "PixelPlanets",
 			fps: 60,
@@ -533,13 +653,13 @@ class ApplicationMain {
 					display: 0,
 					fullscreen: false,
 					hardware: true,
-					height: 480,
+					height: 1000,
 					parameters: "{}",
 					resizable: true,
 					stencilBuffer: false,
 					title: "PixelPlanets",
 					vsync: true,
-					width: 640,
+					width: 1900,
 					x: null,
 					y: null
 				},
@@ -549,7 +669,7 @@ class ApplicationMain {
 		
 		#if (js && html5)
 		#if (munit || utest)
-		openfl.Lib.embed (null, 640, 480, "null");
+		openfl.Lib.embed (null, 1900, 1000, "null");
 		#end
 		#else
 		create ();

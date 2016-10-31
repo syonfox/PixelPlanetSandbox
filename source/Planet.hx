@@ -47,26 +47,16 @@ class Planet {
     sprite = new FlxSprite(p.x-r, p.y-r);
     sprite.makeGraphic(Std.int(2*r), Std.int(2*r), FlxColor.TRANSPARENT, true);
     FlxSpriteUtil.drawEllipse(sprite, 0, 0, 2*r, 2*r, color);
-    trace( "made sprite" );
   }
 
   public function update():Void {
     var time:Float = 1/60; //60fps?
 
-    //trace( "adding "+time+"*a to v, v orig is: ( "+v.x+" , "+v.y+" )");
-    //        +", x:"+v.x+", y:"+v.y);
-    //var tempbef:Float = v.rad;
-
-    trace( "p is : ("+p.x+" , "+p.y+")" );
-    trace( "v is : ("+v.x+" , "+v.y+")" );
-    trace( "a is : ("+a.x+" , "+a.y+")" );
+    //trace( "p is : ("+p.x+" , "+p.y+")" );
+    //trace( "v is : ("+v.x+" , "+v.y+")" );
+    //trace( "a is : ("+a.x+" , "+a.y+")" );
 
     v = v.add(a.scalerProduct(time));
-
-    //trace( "v after is: ( "+v.x+" , "+v.y+" )");
-    //        +", x:"+v.x+", y:"+v.y);
-    //trace( "sprite coords bef are: x:"+x+", y:"+y );
-    //var tempaft:Float = v.rad;
 
     p = p.add(v);
 
