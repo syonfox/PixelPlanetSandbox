@@ -1,0 +1,4 @@
+HXCPP_M64=1
+hxcpp=3.3.49
+hxcpp_api_level=321
+hxcpp=/home/syonfox/haxelib/hxcpp/3,3,49/
