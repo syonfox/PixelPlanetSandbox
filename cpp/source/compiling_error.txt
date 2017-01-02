@@ -1,0 +1,13 @@
+/home/syonfox/github/PixelPlanetSandbox/cpp/source/Planet.hpp:24:7: error: invalid abstract return type ‘sf::Drawable’
+   sf::Drawable
+       ^~~~~~~~
+In file included from /usr/include/SFML/Graphics/Shape.hpp:32:0,
+                 from /usr/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/include/SFML/Graphics.hpp:34,
+                 from /home/syonfox/github/PixelPlanetSandbox/cpp/source/Planet.hpp:4:
+/usr/include/SFML/Graphics/Drawable.hpp:44:25: note:   because the following virtual functions are pure within ‘sf::Drawable’:
+ class SFML_GRAPHICS_API Drawable
+                         ^~~~~~~~
+/usr/include/SFML/Graphics/Drawable.hpp:69:18: note: 	virtual void sf::Drawable::draw(sf::RenderTarget&, sf::RenderStates) const
+     virtual void draw(RenderTarget& target, RenderStates states) const = 0;
+                  ^~~~
