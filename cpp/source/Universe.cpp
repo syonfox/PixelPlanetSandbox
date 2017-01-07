@@ -105,7 +105,8 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
 
   switch (mode) {
   case 1: // sclae o fit everything
-    scale = break;
+    scale = 1;
+    break;
 
   default:
     break;
