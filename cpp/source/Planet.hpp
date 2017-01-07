@@ -21,8 +21,10 @@ public:
 
   // sf::CircleShape
   // generateCircleShape(); // generates the sprite based on the size and color
-  sf::CircleShape getCircleShape(); // retuens somting that can be drawen and
-                                    // represents th planet
+  // retuens somting that can be drawen and
+  // represents the planet, based on the scale you want and where the
+  // window(0,0) is in the univers
+  sf::CircleShape getCircleShape(sf::Vector2f orgin, float scale);
 };
 }
 

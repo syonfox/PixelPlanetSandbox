@@ -11,6 +11,9 @@ private:
   std::vector<sf::CircleShape> vps; // visibal planet shapes?
   float g;                          // gravitational constant
   sf::Vector2f universeExtents[2];  // min_x,min_y; max_x,max_y
+
+  void updateVisiblePlanetShapes(int mode, sf::Vector2f windowSize);
+
 public:
   Universe(void);
   int getPlanetCount(void);

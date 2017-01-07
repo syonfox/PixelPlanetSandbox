@@ -10,7 +10,7 @@
 #include <SFML/Window/Event.hpp>
 #include <stdlib.h>
 
-void myFunc() { ImGui::Button("My Func"); }
+// void myFunc() { ImGui::Button("My Func"); }
 // for help things.
 static void ShowHelpMarker(const char *desc) {
   ImGui::TextDisabled("(?)");
@@ -25,12 +25,11 @@ static void ShowHelpMarker(const char *desc) {
 
 int main() {
   // int buttonPressed = 0;
-  sf::RenderWindow window(sf::VideoMode(1300, 700), "ImGui + SFML = <3");
+  sf::RenderWindow window(sf::VideoMode(1300, 700), "Pixel Planet Simulator");
   window.setFramerateLimit(500);
   ImGui::SFML::Init(window);
 
-  sf::CircleShape shape(100.f);
-  shape.setFillColor(sf::Color::Green);
+  static bool hasFocus = true;
 
   sf::Font fontCapture;
   fontCapture.loadFromFile("res/Capture_it.ttf");
@@ -61,49 +60,34 @@ int main() {
 
   sf::Clock deltaClock;
 
-  // sdfsdfs                       sdfsdfsdfsdfsdfsdfsd
-  // Mdddsdf                     asdaasadsssdfsdfsdfsdffds
-  // mapsdf                      asdasd              asdas
-  // ddfdsd                      asdasda             asdasd
-  // sdfsdf                      asdasda             asdasd
-  // dsfsdfs                       asdas             asdasd
-  // dsfsdsdfsdfdsfsdfasdfasd      asdas asdasdasdasasdsad
-  // dsfsdfsdfasdfsdfasdfasd         asdasdasdasdasd
-
+  /*
+  Main loop
+   */
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(event);
 
+      // ifthe window has focuse and Imgui dose not
+      if (hasFocus && !ImGui::IsRootWindowOrAnyChildHovered()) {
+        // nonimgui event handling
+      }
+
+      switch (event.type) {
+      case sf::Event::LostFocus:
+        hasFocus = false;
+        break;
+      case sf::Event::GainedFocus:
+        hasFocus = true;
+        break;
+      default:
+        break;
+      }
+
       if (event.type == sf::Event::Closed) {
         window.close();
       }
     }
-
-    // txtFps.setString(fpsString);
-    //  ImGui::ShowTestWindow();
-
-    /*
-        ImGui::Begin("Hello, world!");
-        ImGui::Button("Look at this pretty button");
-        ImGui::Button("Look at this pretty button 2");
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                    1000.0f / ImGui::GetIO().Framerate,
-       ImGui::GetIO().Framerate);
-        ImGui::End();
-
-        ImGui::Begin("Hello, world2");
-        if (ImGui::Button("Look at this pretty button3")) {
-          buttonPressed++;
-        }
-
-        ImGui::Text(const_cast<char *>(std::to_string(buttonPressed).c_str()));
-        // myFunc();
-        ImGui::Button("Look at this pretty button 4");
-        ImGui::End();
-
-        txtFps.setString(std::to_string(buttonPressed));
-    */
 
     uni.Update(deltaClock.getElapsedTime());
     ImGui::SFML::Update(window, deltaClock.restart());

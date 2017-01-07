@@ -69,12 +69,26 @@ void pps::Universe::Update(sf::Time dt) {
   //  destQ = removeDups(destQ);
   //}
 
-  float t = dt.asSeconds();
   // update planet positions
+  float t = dt.asSeconds();
+
   for (i = 0; i < planets.size(); i++) {
 
     planets[i].p += (planets[i].v * t) + (0.5f * planets[i].a * (t * t));
     planets[i].v += planets[i].a * t;
+  }
+}
+
+void pps::Universe::updateVisiblePlanetShapes(int mode,
+                                              sf::Vector2f windowSize) {
+  float scale = 1;
+  size_t i = 0; // for loops
+  // if wehave a at least oneplanet set theextents to that one.
+  if (planets.size() >= 1) {
+    universeExtents[0] = planets[0].p;
+    universeExtents[1] = planets[0].p;
+  }
+  for (i = 0; i < planets.size(); i++) {
     if (planets[i].p.x < universeExtents[0].x) {
       universeExtents[0].x = planets[i].p.x;
     }
@@ -87,9 +101,18 @@ void pps::Universe::Update(sf::Time dt) {
     if (planets[i].p.y > universeExtents[1].y) {
       universeExtents[1].y = planets[i].p.y;
     }
-
-    vps.push_back(planets[i].getCircleShape());
   }
+
+  switch (mode) {
+  case 1: // sclae o fit everything
+    scale = break;
+
+  default:
+    break;
+  }
+
+  vps.push_back(
+      planets[i].getCircleShape(universeExtents[0], scale)); // scale and orgin?
 }
 
 std::vector<sf::CircleShape> pps::Universe::getVisiblePlanets() { return vps; }
