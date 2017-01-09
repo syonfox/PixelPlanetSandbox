@@ -26,6 +26,7 @@ static void ShowHelpMarker(const char *desc) {
 int main() {
   // int buttonPressed = 0;
   sf::RenderWindow window(sf::VideoMode(1300, 700), "Pixel Planet Simulator");
+
   window.setFramerateLimit(500);
   ImGui::SFML::Init(window);
 
@@ -68,8 +69,8 @@ int main() {
     while (window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(event);
 
-      // ifthe window has focuse and Imgui dose not
-      if (hasFocus && !ImGui::IsRootWindowOrAnyChildHovered()) {
+      // if the window has focuse and Imgui dose not
+      if (hasFocus && !ImGui::IsMouseHoveringAnyWindow()) {
         // nonimgui event handling
       }
 
@@ -89,7 +90,7 @@ int main() {
       }
     }
 
-    uni.Update(deltaClock.getElapsedTime());
+    uni.Update(deltaClock.getElapsedTime(), 1, window.getSize());
     ImGui::SFML::Update(window, deltaClock.restart());
 
     ImGui::Begin("God");
@@ -132,7 +133,8 @@ int main() {
     sf::Vector2f *tempUE = uni.getUniverseExtents();
     ImGui::Text("Universe Extents: (%f,%f) (%f,%f)", tempUE[0].x, tempUE[0].y,
                 tempUE[1].x, tempUE[1].y);
-
+    ImGui::Text("Has Focus %d, imguihas focus %d", hasFocus,
+                ImGui::IsMouseHoveringAnyWindow());
     ImGui::End();
 
     std::vector<sf::CircleShape> planetsShapes = uni.getVisiblePlanets();

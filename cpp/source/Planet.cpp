@@ -20,7 +20,7 @@ pps::Planet::Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
 //}
 sf::CircleShape pps::Planet::getCircleShape(sf::Vector2f orgin, float scale) {
 
-  shape.setPosition((p * scale) + orgin); // orgin is the univers position that
+  shape.setPosition((p - orgin) * scale); // orgin is the univers position that
                                           // is maped to window position (0, 0)
                                           // withscale being a constant the
                                           // converts world units to pixels

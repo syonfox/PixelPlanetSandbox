@@ -9,10 +9,8 @@ pps::Universe::Universe() {
   vps = {};
 }
 
-void pps::Universe::addPlanet(pps::Planet p) {
-  // maby if(p) ???
-  planets.push_back(p);
-}
+void pps::Universe::addPlanet(pps::Planet p) { planets.push_back(p); }
+
 void pps::Universe::delPlanet(size_t index) {
   if (index < planets.size()) {
     planets.erase(planets.begin() + index);
@@ -23,12 +21,13 @@ float pps::Universe::getG() { return g; }
 void pps::Universe::setG(float sg) { g = sg; }
 int pps::Universe::getPlanetCount() { return planets.size(); }
 sf::Vector2f *pps::Universe::getUniverseExtents() { return universeExtents; }
-void pps::Universe::Update(sf::Time dt) {
+void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
 
   // loops vars
   size_t i = 0;
   size_t j = 0;
   vps = {};
+
   // zero out the acceleration
   for (i = 0; i < planets.size(); i++) {
     planets[i].a.x = 0.0;
@@ -50,9 +49,8 @@ void pps::Universe::Update(sf::Time dt) {
 
         // finde the acceleration of planet i due to j
         sf::Vector2f acc = force * (1 / planets[i].m);
-        // trace( "acc is: ( "+acc.x+" , "+acc.y+" )");
-        planets[i].a += acc;
         // add that acceleration to the runing total for i
+        planets[i].a += acc;
         // same for planet j
         acc = force * (-1 / planets[j].m);
         planets[j].a += acc;
@@ -77,10 +75,11 @@ void pps::Universe::Update(sf::Time dt) {
     planets[i].p += (planets[i].v * t) + (0.5f * planets[i].a * (t * t));
     planets[i].v += planets[i].a * t;
   }
+  updateVisiblePlanetShapes(1, windowSize);
 }
 
 void pps::Universe::updateVisiblePlanetShapes(int mode,
-                                              sf::Vector2f windowSize) {
+                                              sf::Vector2u windowSize) {
   float scale = 1;
   size_t i = 0; // for loops
   // if wehave a at least oneplanet set theextents to that one.
@@ -88,6 +87,7 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
     universeExtents[0] = planets[0].p;
     universeExtents[1] = planets[0].p;
   }
+
   for (i = 0; i < planets.size(); i++) {
     if (planets[i].p.x < universeExtents[0].x) {
       universeExtents[0].x = planets[i].p.x;
@@ -105,15 +105,23 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
 
   switch (mode) {
   case 1: // sclae o fit everything
-    scale = 1;
-    break;
+    scale = windowSize.y / (universeExtents[0].y - universeExtents[1].y);
+    if (scale < 0)
+      scale *= -1;
 
-  default:
+    float temp = windowSize.x / (universeExtents[0].x - universeExtents[1].x);
+    if (temp < 0)
+      temp *= -1;
+
+    if (temp < scale)
+      scale = temp;
     break;
   }
 
-  vps.push_back(
-      planets[i].getCircleShape(universeExtents[0], scale)); // scale and orgin?
+  for (i = 0; i < planets.size(); i++) {
+    vps.push_back(planets[i].getCircleShape(universeExtents[0],
+                                            scale)); // scale and orgin?
+  }
 }
 
 std::vector<sf::CircleShape> pps::Universe::getVisiblePlanets() { return vps; }

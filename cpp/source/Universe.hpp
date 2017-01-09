@@ -12,12 +12,13 @@ private:
   float g;                          // gravitational constant
   sf::Vector2f universeExtents[2];  // min_x,min_y; max_x,max_y
 
-  void updateVisiblePlanetShapes(int mode, sf::Vector2f windowSize);
+  void updateVisiblePlanetShapes(int mode, sf::Vector2u windowSize);
 
 public:
   Universe(void);
   int getPlanetCount(void);
-  void Update(sf::Time dt); // updates all planet locations
+  void Update(sf::Time dt, int mode,
+              sf::Vector2u windowSize); // updates all planet locations
   // Planet *getNextVisiblePlanet(); // gets a visible planet //returns Null if
   // list depleated
   std::vector<sf::CircleShape>
