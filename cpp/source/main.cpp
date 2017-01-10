@@ -49,6 +49,8 @@ int main() {
   float apvx = 3;
   float apvy = 4;
 
+  int uniDrawMode = 0;
+
   float apc[3] = {1.0f, 0.0f, 0.2f};
 
   pps::Universe uni;
@@ -90,7 +92,7 @@ int main() {
       }
     }
 
-    uni.Update(deltaClock.getElapsedTime(), 1, window.getSize());
+    uni.Update(deltaClock.getElapsedTime(), uniDrawMode, window.getSize());
     ImGui::SFML::Update(window, deltaClock.restart());
 
     ImGui::Begin("God");
@@ -98,7 +100,7 @@ int main() {
     ImGui::SliderFloat("Gravitational Constant", &g, 0.0f, 10.0f,
                        "ratio = %.3f");
     uni.setG(g);
-
+    ImGui::InputInt("Univers Draw Mode", &uniDrawMode, 1);
     if (ImGui::CollapsingHeader("Add Planet Menu")) {
       ImGui::InputFloat("Radius", &apr);
       // ImGui::SameLine();
@@ -131,6 +133,10 @@ int main() {
     ImGui::Text("Planet Count: %d", uni.getPlanetCount());
     ImGui::Text("Didsomting: %d", didsomting);
     sf::Vector2f *tempUE = uni.getUniverseExtents();
+    ImGui::Text("Universe Extents: (%f,%f) (%f,%f)", tempUE[0].x, tempUE[0].y,
+                tempUE[1].x, tempUE[1].y);
+
+    tempUE = uni.getMaxUniverseExtentsSeen();
     ImGui::Text("Universe Extents: (%f,%f) (%f,%f)", tempUE[0].x, tempUE[0].y,
                 tempUE[1].x, tempUE[1].y);
     ImGui::Text("Has Focus %d, imguihas focus %d", hasFocus,

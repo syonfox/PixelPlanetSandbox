@@ -7,6 +7,8 @@ pps::Universe::Universe() {
   planets = {};
   g = 10;
   vps = {};
+  maxUniverseExtentsSeen[0] = sf::Vector2f();
+  maxUniverseExtentsSeen[1] = sf::Vector2f();
 }
 
 void pps::Universe::addPlanet(pps::Planet p) { planets.push_back(p); }
@@ -21,6 +23,10 @@ float pps::Universe::getG() { return g; }
 void pps::Universe::setG(float sg) { g = sg; }
 int pps::Universe::getPlanetCount() { return planets.size(); }
 sf::Vector2f *pps::Universe::getUniverseExtents() { return universeExtents; }
+sf::Vector2f *pps::Universe::getMaxUniverseExtentsSeen() {
+  return maxUniverseExtentsSeen;
+}
+
 void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
 
   // loops vars
@@ -75,7 +81,7 @@ void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
     planets[i].p += (planets[i].v * t) + (0.5f * planets[i].a * (t * t));
     planets[i].v += planets[i].a * t;
   }
-  updateVisiblePlanetShapes(1, windowSize);
+  updateVisiblePlanetShapes(mode, windowSize);
 }
 
 void pps::Universe::updateVisiblePlanetShapes(int mode,
@@ -103,8 +109,30 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
     }
   }
 
+  // theres probubly an easyer way to do this
+  if (universeExtents[0].x < maxUniverseExtentsSeen[0].x) {
+    maxUniverseExtentsSeen[0].x = universeExtents[0].x;
+  }
+  if (universeExtents[0].y < maxUniverseExtentsSeen[0].y) {
+    maxUniverseExtentsSeen[0].y = universeExtents[0].y;
+  }
+  if (universeExtents[1].x > maxUniverseExtentsSeen[1].x) {
+    maxUniverseExtentsSeen[1].x = universeExtents[1].x;
+  }
+  if (universeExtents[1].y > maxUniverseExtentsSeen[1].y) {
+    maxUniverseExtentsSeen[1].y = universeExtents[1].y;
+  }
+
   switch (mode) {
-  case 1: // sclae o fit everything
+  case 0: // to scale
+    scale = 1;
+
+    for (i = 0; i < planets.size(); i++) {
+      vps.push_back(planets[i].getCircleShape(sf::Vector2f(), scale));
+    }
+    break;
+
+  case 1: { // sclae o fit everything
     scale = windowSize.y / (universeExtents[0].y - universeExtents[1].y);
     if (scale < 0)
       scale *= -1;
@@ -115,12 +143,33 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
 
     if (temp < scale)
       scale = temp;
+
+    for (i = 0; i < planets.size(); i++) {
+      vps.push_back(planets[i].getCircleShape(universeExtents[0],
+                                              scale)); // scale and orgin?
+    }
     break;
   }
+  case 2: { // stretchy borader that stick to the max seen univers size
+    scale = windowSize.y /
+            (maxUniverseExtentsSeen[0].y - maxUniverseExtentsSeen[1].y);
+    if (scale < 0)
+      scale *= -1;
 
-  for (i = 0; i < planets.size(); i++) {
-    vps.push_back(planets[i].getCircleShape(universeExtents[0],
-                                            scale)); // scale and orgin?
+    float temp = windowSize.x /
+                 (maxUniverseExtentsSeen[0].x - maxUniverseExtentsSeen[1].x);
+    if (temp < 0)
+      temp *= -1;
+
+    if (temp < scale)
+      scale = temp;
+
+    for (i = 0; i < planets.size(); i++) {
+      vps.push_back(planets[i].getCircleShape(maxUniverseExtentsSeen[0],
+                                              scale)); // scale and orgin?
+    }
+    break;
+  }
   }
 }
 

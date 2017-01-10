@@ -8,10 +8,10 @@ namespace pps {
 class Universe {
 private:
   std::vector<Planet> planets;
-  std::vector<sf::CircleShape> vps; // visibal planet shapes?
-  float g;                          // gravitational constant
-  sf::Vector2f universeExtents[2];  // min_x,min_y; max_x,max_y
-
+  std::vector<sf::CircleShape> vps;       // visibal planet shapes?
+  float g;                                // gravitational constant
+  sf::Vector2f universeExtents[2];        // min_x,min_y; max_x,max_y
+  sf::Vector2f maxUniverseExtentsSeen[2]; // verry discriptive name
   void updateVisiblePlanetShapes(int mode, sf::Vector2u windowSize);
 
 public:
@@ -24,6 +24,7 @@ public:
   std::vector<sf::CircleShape>
   getVisiblePlanets(); // returns a list of all visable planets
   sf::Vector2f *getUniverseExtents();
+  sf::Vector2f *getMaxUniverseExtentsSeen();
   float getG();
   void setG(float sg);
 
