@@ -8,8 +8,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+#include <stdint.h>
 #include <stdlib.h>
-
 // void myFunc() { ImGui::Button("My Func"); }
 // for help things.
 static void ShowHelpMarker(const char *desc) {

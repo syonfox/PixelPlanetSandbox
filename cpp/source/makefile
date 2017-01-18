@@ -27,4 +27,4 @@ imgui-SFML.o: imgui-SFML.h imgui-SFML.cpp
 
 
 clean:
-	rm *.o
+	rm *.o pps
