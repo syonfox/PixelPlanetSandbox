@@ -6,14 +6,18 @@
 
 namespace pps {
 
-struct SpritePoint {
-  sf::CircleShape shape;
-  sf::Vector2f p;
-};
+// not guna preoptims but this chould be done in a normal array but
 struct Trails {
-  SpritePoint *trailData;
-  uint len;
-  uint front;
+  std::vector<sf::CircleShape> shapes;
+  // for univers positions //for changing scalse
+  std::vector<sf::Vector2f> positions;
+  uint length; // length of each trail
+  uint size;   // lingth of the array
+  uint ptr;
+  uint frameDelay;
+  uint frameCount;
+  float r;
+  sf::Color color;
 };
 
 class Universe {
@@ -26,22 +30,26 @@ private:
   sf::Vector2f universeExtents[2];        // min_x,min_y; max_x,max_y
   sf::Vector2f maxUniverseExtentsSeen[2]; // verry discriptive name
   void updateVisiblePlanetShapes(int mode, sf::Vector2u windowSize);
+  sf::CircleShape getTailsShape();
 
 public:
   Universe(void);
   int getPlanetCount(void);
   void Update(sf::Time dt, int mode,
               sf::Vector2u windowSize); // updates all planet locations
-  // Planet *getNextVisiblePlanet(); // gets a visible planet //returns Null if
   // list depleated
-  std::vector<sf::CircleShape>
-  getVisiblePlanets(); // returns a list of all visable planets
+  // returns a list of all visable planets
+  std::vector<sf::CircleShape> getVisiblePlanets();
+  // returns a list of all trailpoints needed
+  std::vector<sf::CircleShape> getVisibleTrails();
   sf::Vector2f *getUniverseExtents();
   sf::Vector2f *getMaxUniverseExtentsSeen();
-  float getG();
+
+  float getG(); // for seting Gravitational constant
   void setG(float sg);
-  void setTrailLength(uint length);
-  void setDrawTrails(bool dt);
+  void setTrailLength(uint length); // the number of points that should be
+                                    // drawen behind each planet
+  void setDrawTrails(bool dt);      //
   void addPlanet(Planet p);
   void delPlanet(size_t index); // deletes a planet from the planets at index.
 };

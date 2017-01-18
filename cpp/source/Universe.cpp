@@ -1,5 +1,7 @@
 #import "Universe.hpp"
 #import "Planet.hpp"
+#include "imgui-SFML.h"
+#include "imgui.h"
 #import <SFML/Graphics.hpp>
 #include <vector>
 
@@ -9,16 +11,43 @@ pps::Universe::Universe() {
   vps = {};
   maxUniverseExtentsSeen[0] = sf::Vector2f();
   maxUniverseExtentsSeen[1] = sf::Vector2f();
+  drawTrails = true;
+  printf("Ua\n");
+  trails.length = 10;
+  trails.ptr = 0;
+  trails.shapes = {};
+  trails.positions = {};
+  trails.color = sf::Color::Green;
+  trails.r = 2;
+  trails.frameDelay = 100;
+  trails.frameCount = 0;
+  printf("Ub\n");
 }
 
-void pps::Universe::addPlanet(pps::Planet p) { planets.push_back(p); }
+void pps::Universe::addPlanet(pps::Planet p) {
+  planets.push_back(p);
+  // if we add an item we have to add that many shapes
+  for (uint i = 0; i < trails.length; i++) {
+    trails.shapes.push_back(getTailsShape());
+  }
+}
 
 void pps::Universe::delPlanet(size_t index) {
   if (index < planets.size()) {
     planets.erase(planets.begin() + index);
+    // if we remove an iteam we have to remove that many shapes
+    for (uint i = 0; i < trails.length; i++) {
+      trails.shapes.pop_back();
+    }
   }
 }
-
+void pps::Universe::setTrailLength(uint length) {
+  trails.length = length;
+  trails.shapes.clear();
+  for (uint i = 0; i < trails.length * planets.size(); i++) {
+    trails.shapes.push_back(getTailsShape());
+  }
+}
 float pps::Universe::getG() { return g; }
 void pps::Universe::setG(float sg) { g = sg; }
 int pps::Universe::getPlanetCount() { return planets.size(); }
@@ -34,13 +63,14 @@ void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
   size_t j = 0;
   vps = {};
 
-  // zero out the acceleration
+  // zero out the acceleration (2n)
   for (i = 0; i < planets.size(); i++) {
     planets[i].a.x = 0.0;
     planets[i].a.y = 0.0;
   }
 
-  // double for for each pair of planets
+  // double for for each pair of planets (c*n^2)
+  // TODO: Optimize
   for (i = 0; i < planets.size(); i++) {
     for (j = i + 1; j < planets.size(); j++) {
 
@@ -83,7 +113,12 @@ void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
   }
   updateVisiblePlanetShapes(mode, windowSize);
 }
-
+sf::CircleShape pps::Universe::getTailsShape() {
+  sf::CircleShape temp = sf::CircleShape(trails.r);
+  temp.setFillColor(trails.color);
+  temp.setOrigin(trails.r, trails.r); // r= radius
+  return temp;
+}
 void pps::Universe::updateVisiblePlanetShapes(int mode,
                                               sf::Vector2u windowSize) {
   float scale = 1;
@@ -171,6 +206,60 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
     break;
   }
   }
+
+  // update Trails
+
+  // for (uint j = 0; j < trails.length; j++) {
+  // ImGui::Begin("Universe Debug");
+  // changes the positon of a shape
+
+  if (drawTrails) {
+    printf("fc: %d\n", trails.frameCount);
+    // if (trails.frameCount >= trails.frameDelay) {
+    if (true) {
+
+      printf("a\n");
+      trails.frameCount = 0;
+      for (i = 0; i < planets.size(); i++) {
+        printf("$$$ %d,  %d\n", trails.shapes.size(),
+               i + (planets.size() * trails.ptr));
+        trails.shapes[i + (planets.size() * trails.ptr)].setPosition(
+            vps[i].getPosition());
+      }
+      trails.ptr++;
+      printf("b\n");
+      if (trails.ptr >= trails.length) {
+        trails.ptr = 0;
+      }
+      printf("c1\n");
+    } else {
+      printf("c2\n");
+      trails.frameCount++;
+    }
+    /*ImGui::Text(
+        "trails ptr: %d, trails.shapes[i * 0] (%f,%f), trails.shapes[i * "
+        "(planets.size()-1)] (%f, %f)",
+        trails.ptr, trails.shapes[0].getPosition().x,
+        trails.shapes[0].getPosition().y,
+        trails.shapes[trails.length * (planets.size() - 1)].getPosition().x,
+        trails.shapes[trails.length * (planets.size() - 1)].getPosition().y);
+    ImGui::End();*/
+  }
+}
+
+void pps::Universe::setDrawTrails(bool dt) {
+  if (dt && !drawTrails) {
+    printf("d\n");
+    trails.ptr = 0;
+  }
+  drawTrails = dt;
 }
 
 std::vector<sf::CircleShape> pps::Universe::getVisiblePlanets() { return vps; }
+std::vector<sf::CircleShape> pps::Universe::getVisibleTrails() {
+  if (drawTrails) {
+    return trails.shapes;
+  } else {
+    return {};
+  }
+}

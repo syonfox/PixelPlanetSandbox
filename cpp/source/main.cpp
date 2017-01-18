@@ -92,8 +92,8 @@ int main() {
       }
     }
 
-    uni.Update(deltaClock.getElapsedTime(), uniDrawMode, window.getSize());
     ImGui::SFML::Update(window, deltaClock.restart());
+    uni.Update(deltaClock.getElapsedTime(), uniDrawMode, window.getSize());
 
     ImGui::Begin("God");
 
@@ -150,6 +150,11 @@ int main() {
       // vps[i]->p.y,
       //            vps[i]->v.x, vps[i]->v.y);
       window.draw(planetsShapes[i]);
+    }
+    // if(Universe.isDrawTrails())
+    std::vector<sf::CircleShape> trailShapes = uni.getVisibleTrails();
+    for (size_t i = 0; i < trailShapes.size(); i++) {
+      window.draw(trailShapes[i]);
     }
 
     ImGui::Render();
