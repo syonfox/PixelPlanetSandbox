@@ -1,0 +1,4 @@
+*.o
+pps
+imgui.ini
+compiling_error.txt
