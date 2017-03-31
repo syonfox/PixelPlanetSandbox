@@ -18,7 +18,7 @@ pps::Planet::Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
   historyLength = 0;
   historyFront = 0;
   drawTrail = false;
-  trailLength = 50;
+  trailLength = 0;
   trailLine = sf::VertexArray(sf::LinesStrip, 0);
   trailColor = sf::Color::Green;
   frameDelay = 100;
@@ -26,7 +26,11 @@ pps::Planet::Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
 
   enableTrail();
 }
-pps::Planet::~Planet() { delete[] positionHistory; }
+pps::Planet::~Planet() {
+  printf("test %ld  , m:%f\n", (long)(void *)positionHistory, mass);
+  if (positionHistory != 0)
+    delete[] positionHistory;
+}
 // sf::CircleShape pps::Planet::generateCircleShape() {
 // if complex generation needed
 //}
@@ -45,17 +49,20 @@ void pps::Planet::updateSprites(sf::Vector2f orgin, float scale) {
                             // converts world units to pixels
   shape.setScale(scale, scale);
 
-  if (drawTrail) {
+  if (drawTrail == true) {
     for (long i = 0; i < trailLength; i++) {
+      size_t index = ((long)historyFront - i) % historyLength;
+
       printf("i:%zu  ", i);
-      printf("imath:%ld , hl:%zu \n", ((long)historyFront - i), historyLength);
-      //  printf("p(%f,%f)\n",
-      //         positionHistory[((long)historyFront - i) % historyLength].x,
-      //           positionHistory[((long)historyFront - i) % historyLength].y);
-      // trailLine[i].position =
-      //    ((positionHistory[((long)historyFront - i) % historyLength] - orgin)
-      //    *
-      //     scale);
+      printf("imath:%ld \n", ((long)historyFront - i) % historyLength);
+      printf("p(%f,%f)   ", positionHistory[index].x, positionHistory[index].y);
+      printf("o(%f,%f)\n", orgin.x, orgin.y);
+      sf::Vector2f tempPos;
+      tempPos.x = positionHistory[index].x - orgin.x;
+      tempPos.y = positionHistory[index].y - orgin.y;
+
+      tempPos *= scale;
+      trailLine[i].position = tempPos;
     }
   }
 }
@@ -100,8 +107,14 @@ void pps::Planet::setTrailLength(unsigned length) {
 }
 
 void pps::Planet::enableTrail() {
+  if (trailLength == 0) {
+    setTrailLength(50);
+  }
   if (!drawTrail) {
     drawTrail = true;
+    if (historyLength < trailLength) {
+      setHistoryLength(trailLength);
+    }
     trailLine = sf::VertexArray(sf::LinesStrip, trailLength);
     for (size_t i = 0; i < trailLength; i++) {
       trailLine[i] = sf::Vertex(position, trailColor);
@@ -123,12 +136,11 @@ void pps::Planet::setHistoryLength(size_t length) {
       temp[i] = position;
     }
 
-    historyLength = length;
-    printf("hl:%zu\n", historyLength);
-    return;
-  }
-
-  if (length <= historyLength) {
+    // historyLength = length;
+    // positionHistory = temp;
+    // printf("hll:%zu\n", historyLength);
+    // return;
+  } else if (length <= historyLength) {
     for (long i = 0; i < length; i++) {
       temp[length - 1 - i] =
           positionHistory[(historyFront - i) % historyLength];
@@ -147,8 +159,11 @@ void pps::Planet::setHistoryLength(size_t length) {
 
   historyLength = length;
   historyFront = length;
+  printf("bef %ld  , m:%f\n", (long)(void *)positionHistory, mass);
+
   delete[] positionHistory;
   positionHistory = temp;
+  printf("aft %ld  , m:%f\n", (long)(void *)positionHistory, mass);
 }
 
 //// FRAME DELAY /////
