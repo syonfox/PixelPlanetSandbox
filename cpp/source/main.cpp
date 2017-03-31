@@ -49,17 +49,23 @@ int main() {
   float apvx = 3;
   float apvy = 4;
 
+  // trails vars
+  int tl = 100;
+  int fd = 100;
+  bool dt = true;
   int uniDrawMode = 0;
 
   float apc[3] = {1.0f, 0.0f, 0.2f};
 
   pps::Universe uni;
-  pps::Planet p1(10, 100, sf::Vector2f(200, 200), sf::Vector2f(0, 10),
+  pps::Planet p1(10, 100, sf::Vector2f(200, 200), sf::Vector2f(0, 20),
                  sf::Vector2f(0, 0), sf::Color::Red);
-  pps::Planet p2(50, 100, sf::Vector2f(400, 200), sf::Vector2f(0, -10),
+  pps::Planet p2(50, 100, sf::Vector2f(400, 200), sf::Vector2f(0, -20),
                  sf::Vector2f(0, 0), sf::Color::Blue);
   uni.addPlanet(p1);
   uni.addPlanet(p2);
+
+  uni.setDrawTrails(true);
 
   sf::Clock deltaClock;
 
@@ -126,6 +132,22 @@ int main() {
                                             (uint8_t)(apc[2] * 255), 255)));
       }
     }
+    if (ImGui::CollapsingHeader("Edit Trails Menu")) {
+      ImGui::InputInt("Trails Lenth", &tl);
+      // ImGui::SameLine();
+      ImGui::InputInt("Frame Delay", &fd);
+      ImGui::Checkbox("Trailes Enabled", &dt);
+
+      if (ImGui::Button("Update Trails")) {
+        if (tl < 0)
+          tl = 0;
+        if (fd < 0)
+          fd = 0;
+        uni.setTrailLength((size_t)tl);
+        uni.setTrailFrameDelay((size_t)fd);
+        uni.setDrawTrails(dt);
+      }
+    }
 
     window.clear();
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
@@ -143,19 +165,18 @@ int main() {
                 ImGui::IsMouseHoveringAnyWindow());
     ImGui::End();
 
-    std::vector<sf::CircleShape> planetsShapes = uni.getVisiblePlanets();
-    for (size_t i = 0; i < planetsShapes.size(); i++) {
-
-      // ImGui::Text("Planet %zd p(%f, %f) v(%f, %f)", i, planetsShapes[i],
-      // vps[i]->p.y,
-      //            vps[i]->v.x, vps[i]->v.y);
-      window.draw(planetsShapes[i]);
-    }
     // if(Universe.isDrawTrails())
-    std::vector<sf::CircleShape> trailShapes = uni.getVisibleTrails();
-    for (size_t i = 0; i < trailShapes.size(); i++) {
-      window.draw(trailShapes[i]);
-    }
+    //  std::vector<sf::VertexArray> trailShapes = uni.getVisibleTrails();
+    //  for (size_t i = 0; i < trailShapes.size(); i++) {
+    //      window.draw(trailShapes[i]);//
+    //    }
+
+    //    std::vector<sf::CircleShape> planetsShapes = uni.getVisiblePlanets();
+    // for (size_t i = 0; i < planetsShapes.size(); i++) {
+    //      window.draw(planetsShapes[i]);
+    //    }
+
+    uni.draw(window);
 
     ImGui::Render();
     window.draw(txtFps);

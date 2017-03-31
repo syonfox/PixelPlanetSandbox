@@ -8,46 +8,36 @@
 pps::Universe::Universe() {
   planets = {};
   g = 10;
-  vps = {};
   maxUniverseExtentsSeen[0] = sf::Vector2f();
   maxUniverseExtentsSeen[1] = sf::Vector2f();
-  drawTrails = true;
-  printf("Ua\n");
-  trails.length = 10;
-  trails.ptr = 0;
-  trails.shapes = {};
-  trails.positions = {};
-  trails.color = sf::Color::Green;
-  trails.r = 2;
-  trails.frameDelay = 100;
-  trails.frameCount = 0;
-  printf("Ub\n");
 }
 
-void pps::Universe::addPlanet(pps::Planet p) {
-  planets.push_back(p);
-  // if we add an item we have to add that many shapes
-  for (uint i = 0; i < trails.length; i++) {
-    trails.shapes.push_back(getTailsShape());
+void pps::Universe::draw(sf::RenderWindow &window) {
+  for (unsigned i = 0; i < planets.size(); i++) {
+    planets[i].draw(window);
   }
 }
+
+void pps::Universe::addPlanet(pps::Planet p) { planets.push_back(p); }
 
 void pps::Universe::delPlanet(size_t index) {
   if (index < planets.size()) {
     planets.erase(planets.begin() + index);
-    // if we remove an iteam we have to remove that many shapes
-    for (uint i = 0; i < trails.length; i++) {
-      trails.shapes.pop_back();
-    }
   }
 }
-void pps::Universe::setTrailLength(uint length) {
-  trails.length = length;
-  trails.shapes.clear();
-  for (uint i = 0; i < trails.length * planets.size(); i++) {
-    trails.shapes.push_back(getTailsShape());
+void pps::Universe::setTrailLength(size_t length) {
+
+  for (size_t i = 0; i < planets.size(); i++) {
+    planets[i].setTrailLength(length);
   }
 }
+
+void pps::Universe::setTrailFrameDelay(size_t delay) {
+  for (unsigned i = 0; i < planets.size(); i++) {
+    planets[i].setFrameDelay(delay);
+  }
+}
+
 float pps::Universe::getG() { return g; }
 void pps::Universe::setG(float sg) { g = sg; }
 int pps::Universe::getPlanetCount() { return planets.size(); }
@@ -61,35 +51,39 @@ void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
   // loops vars
   size_t i = 0;
   size_t j = 0;
-  vps = {};
+  // vps = {};
 
+  size_t numPlanets = planets.size();
+
+  sf::Vector2f *accelerations = new sf::Vector2f[numPlanets];
   // zero out the acceleration (2n)
-  for (i = 0; i < planets.size(); i++) {
-    planets[i].a.x = 0.0;
-    planets[i].a.y = 0.0;
+
+  for (i = 0; i < numPlanets; i++) {
+    accelerations[i] = sf::Vector2f(0.0, 0.0);
   }
 
   // double for for each pair of planets (c*n^2)
   // TODO: Optimize
-  for (i = 0; i < planets.size(); i++) {
-    for (j = i + 1; j < planets.size(); j++) {
+  for (i = 0; i < numPlanets; i++) {
+    for (j = i + 1; j < numPlanets; j++) {
 
       // get force to the distence between the planets
-      sf::Vector2f force = planets[j].p - (planets[i].p);
+      sf::Vector2f force =
+          planets[j].getPosition() - (planets[i].getPosition());
 
       // dont want to devide by 0 thanks dad :P
       if (force.x != 0 && force.y != 0) {
-        force = force * ((g * planets[i].m * planets[j].m) /
+        force = force * ((g * planets[i].getMass() * planets[j].getMass()) /
                          ((force.x * force.x) +
                           (force.y * force.y))); // length before squareroot
 
         // finde the acceleration of planet i due to j
-        sf::Vector2f acc = force * (1 / planets[i].m);
+        sf::Vector2f acceleration = force * (1 / planets[i].getMass());
         // add that acceleration to the runing total for i
-        planets[i].a += acc;
+        accelerations[i] += acceleration;
         // same for planet j
-        acc = force * (-1 / planets[j].m);
-        planets[j].a += acc;
+        acceleration = force * (-1 / planets[j].getMass());
+        accelerations[j] += acceleration;
 
       } else {
         // destQ.push(i);
@@ -104,43 +98,42 @@ void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
   //}
 
   // update planet positions
-  float t = dt.asSeconds();
 
   for (i = 0; i < planets.size(); i++) {
-
-    planets[i].p += (planets[i].v * t) + (0.5f * planets[i].a * (t * t));
-    planets[i].v += planets[i].a * t;
+    planets[i].setAcceleration(accelerations[i]);
+    planets[i].update(dt);
   }
-  updateVisiblePlanetShapes(mode, windowSize);
+
+  delete[] accelerations;
+
+  // updateVisiblePlanetShapes(mode, windowSize);
+  updateViewPort(mode, windowSize);
 }
-sf::CircleShape pps::Universe::getTailsShape() {
-  sf::CircleShape temp = sf::CircleShape(trails.r);
-  temp.setFillColor(trails.color);
-  temp.setOrigin(trails.r, trails.r); // r= radius
-  return temp;
-}
-void pps::Universe::updateVisiblePlanetShapes(int mode,
-                                              sf::Vector2u windowSize) {
+
+void pps::Universe::updateViewPort(int mode, sf::Vector2u windowSize) {
   float scale = 1;
   size_t i = 0; // for loops
+
   // if wehave a at least oneplanet set theextents to that one.
   if (planets.size() >= 1) {
-    universeExtents[0] = planets[0].p;
-    universeExtents[1] = planets[0].p;
+    universeExtents[0] = planets[0].getPosition();
+    universeExtents[1] = universeExtents[0];
   }
 
+  sf::Vector2f tempPosition;
   for (i = 0; i < planets.size(); i++) {
-    if (planets[i].p.x < universeExtents[0].x) {
-      universeExtents[0].x = planets[i].p.x;
+    tempPosition = planets[i].getPosition();
+    if (tempPosition.x < universeExtents[0].x) {
+      universeExtents[0].x = tempPosition.x;
     }
-    if (planets[i].p.y < universeExtents[0].y) {
-      universeExtents[0].y = planets[i].p.y;
+    if (tempPosition.y < universeExtents[0].y) {
+      universeExtents[0].y = tempPosition.y;
     }
-    if (planets[i].p.x > universeExtents[1].x) {
-      universeExtents[1].x = planets[i].p.x;
+    if (tempPosition.x > universeExtents[1].x) {
+      universeExtents[1].x = tempPosition.x;
     }
-    if (planets[i].p.y > universeExtents[1].y) {
-      universeExtents[1].y = planets[i].p.y;
+    if (tempPosition.y > universeExtents[1].y) {
+      universeExtents[1].y = tempPosition.y;
     }
   }
 
@@ -163,8 +156,11 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
     scale = 1;
 
     for (i = 0; i < planets.size(); i++) {
-      vps.push_back(planets[i].getCircleShape(sf::Vector2f(), scale));
+      planets[i].updateSprites(sf::Vector2f(), scale);
     }
+    universAreaToDraw[0] = sf::Vector2f();
+    universAreaToDraw[1] = (sf::Vector2f)windowSize;
+
     break;
 
   case 1: { // sclae o fit everything
@@ -180,9 +176,10 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
       scale = temp;
 
     for (i = 0; i < planets.size(); i++) {
-      vps.push_back(planets[i].getCircleShape(universeExtents[0],
-                                              scale)); // scale and orgin?
+      planets[i].updateSprites(universeExtents[0], scale); // scale and orgin?
     }
+    universAreaToDraw[0] = universeExtents[0];
+    universAreaToDraw[1] = universeExtents[1];
     break;
   }
   case 2: { // stretchy borader that stick to the max seen univers size
@@ -200,9 +197,11 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
       scale = temp;
 
     for (i = 0; i < planets.size(); i++) {
-      vps.push_back(planets[i].getCircleShape(maxUniverseExtentsSeen[0],
-                                              scale)); // scale and orgin?
+      planets[i].updateSprites(maxUniverseExtentsSeen[0],
+                               scale); // scale and orgin?
     }
+    universAreaToDraw[0] = maxUniverseExtentsSeen[0];
+    universAreaToDraw[1] = maxUniverseExtentsSeen[1];
     break;
   }
   }
@@ -213,53 +212,41 @@ void pps::Universe::updateVisiblePlanetShapes(int mode,
   // ImGui::Begin("Universe Debug");
   // changes the positon of a shape
 
-  if (drawTrails) {
-    printf("fc: %d\n", trails.frameCount);
-    // if (trails.frameCount >= trails.frameDelay) {
-    if (true) {
-
-      printf("a\n");
-      trails.frameCount = 0;
-      for (i = 0; i < planets.size(); i++) {
-        printf("$$$ %d,  %d\n", trails.shapes.size(),
-               i + (planets.size() * trails.ptr));
-        trails.shapes[i + (planets.size() * trails.ptr)].setPosition(
-            vps[i].getPosition());
+  /*  if (drawTrails) {
+      if (trails.frameCount >= trails.frameDelay) {
+        trails.frameCount = 0;
+        for (uint i = 0; i < planets.size(); i++) {
+          for (uint j = 0; j < trails.length - 1; j++) {
+            trails.lines[i][j].position = trails.lines[i][j + 1].position;
+          }
+          trails.lines[i][trails.length - 1].position = vps[i].getPosition();
+        }
+      } else {
+        trails.frameCount++;
       }
-      trails.ptr++;
-      printf("b\n");
-      if (trails.ptr >= trails.length) {
-        trails.ptr = 0;
-      }
-      printf("c1\n");
-    } else {
-      printf("c2\n");
-      trails.frameCount++;
-    }
-    /*ImGui::Text(
-        "trails ptr: %d, trails.shapes[i * 0] (%f,%f), trails.shapes[i * "
-        "(planets.size()-1)] (%f, %f)",
-        trails.ptr, trails.shapes[0].getPosition().x,
-        trails.shapes[0].getPosition().y,
-        trails.shapes[trails.length * (planets.size() - 1)].getPosition().x,
-        trails.shapes[trails.length * (planets.size() - 1)].getPosition().y);
-    ImGui::End();*/
-  }
+    }*/
 }
 
 void pps::Universe::setDrawTrails(bool dt) {
   if (dt && !drawTrails) {
-    printf("d\n");
-    trails.ptr = 0;
+    drawTrails = dt;
+    for (unsigned i = 0; i < planets.size(); i++) {
+      planets[i].enableTrail();
+    }
+  } else {
+    drawTrails = dt;
+    for (unsigned i = 0; i < planets.size(); i++) {
+      planets[i].disableTrail();
+    }
   }
-  drawTrails = dt;
 }
 
-std::vector<sf::CircleShape> pps::Universe::getVisiblePlanets() { return vps; }
-std::vector<sf::CircleShape> pps::Universe::getVisibleTrails() {
-  if (drawTrails) {
-    return trails.shapes;
-  } else {
-    return {};
-  }
-}
+// std::vector<sf::CircleShape> pps::Universe::getVisiblePlanets() { return vps;
+// }
+// std::vector<sf::VertexArray> pps::Universe::getVisibleTrails() {
+//  if (drawTrails) {
+//    return trails.lines;
+//  } else {
+//    return {};
+//  }
+//}
