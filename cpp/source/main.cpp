@@ -1,8 +1,8 @@
+#include "imgui-SFML.h"
 #include "imgui.h"
 //#include "imgui_demo.h"
 #include "Planet.hpp"
 #include "Universe.hpp"
-#include "imgui-SFML.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -40,6 +40,8 @@ int main() {
   int didsomting = 0;
 
   // for use in imgui
+  bool showMenuGod = false;
+  bool showMenuPlanet = false;
   float g = 10;
   // add planet vars;
   float apr = 10;
@@ -58,10 +60,10 @@ int main() {
   float apc[3] = {1.0f, 0.0f, 0.2f};
 
   pps::Universe uni;
-  pps::Planet p1(10, 100, sf::Vector2f(200, 200), sf::Vector2f(0, 20),
-                 sf::Vector2f(0, 0), sf::Color::Red);
-  pps::Planet p2(50, 100, sf::Vector2f(400, 200), sf::Vector2f(0, -20),
-                 sf::Vector2f(0, 0), sf::Color::Blue);
+  pps::Planet p1(10, 91, sf::Vector2f(200, 200), sf::Vector2f(0, 20),
+                 sf::Color::Red);
+  pps::Planet p2(50, 92, sf::Vector2f(400, 200), sf::Vector2f(0, -20),
+                 sf::Color::Blue);
   uni.addPlanet(p1);
   uni.addPlanet(p2);
 
@@ -98,72 +100,138 @@ int main() {
       }
     }
 
+    ///// UPDATE /////
+    // update ImGui
     ImGui::SFML::Update(window, deltaClock.restart());
+
+    // update Universe
     uni.Update(deltaClock.getElapsedTime(), uniDrawMode, window.getSize());
 
-    ImGui::Begin("God");
+    /////GUI LOGIC /////
+    if (ImGui::BeginMainMenuBar()) {
+      if (ImGui::BeginMenu("File")) {
+        //  ShowExampleMenuFile();
 
-    ImGui::SliderFloat("Gravitational Constant", &g, 0.0f, 10.0f,
-                       "ratio = %.3f");
-    uni.setG(g);
-    ImGui::InputInt("Univers Draw Mode", &uniDrawMode, 1);
-    if (ImGui::CollapsingHeader("Add Planet Menu")) {
-      ImGui::InputFloat("Radius", &apr);
-      // ImGui::SameLine();
-      ImGui::InputFloat("Mass", &apm);
-      ImGui::InputFloat("Position X", &appx);
-      // ImGui::SameLine();
-      ImGui::InputFloat("Position Y", &appy);
-      ImGui::InputFloat("Velocity X", &apvx);
-      // ImGui::SameLine();
-      ImGui::InputFloat("Velocity Y", &apvy);
-
-      ImGui::ColorEdit3("Color", apc);
-      ImGui::SameLine();
-      ShowHelpMarker("Click on the colored square to change edit "
-                     "mode.\nCTRL+click on individual component to input "
-                     "value.\n");
-      if (ImGui::Button("Add Planet")) {
-        didsomting++;
-        uni.addPlanet(pps::Planet(apr, apm, sf::Vector2f(appx, appy),
-                                  sf::Vector2f(apvx, apvy), sf::Vector2f(0, 0),
-                                  sf::Color((uint8_t)(apc[0] * 255),
-                                            (uint8_t)(apc[1] * 255),
-                                            (uint8_t)(apc[2] * 255), 255)));
+        if (ImGui::MenuItem("does", "nothing", false, false)) {
+        } // Disabled item
+        ImGui::EndMenu();
       }
-    }
-    if (ImGui::CollapsingHeader("Edit Trails Menu")) {
-      ImGui::InputInt("Trails Lenth", &tl);
-      // ImGui::SameLine();
-      ImGui::InputInt("Frame Delay", &fd);
-      ImGui::Checkbox("Trailes Enabled", &dt);
+      if (ImGui::BeginMenu("Windows")) {
+        //  ShowExampleMenuFile();
 
-      if (ImGui::Button("Update Trails")) {
+        ImGui::MenuItem("God Window", NULL, &showMenuGod);
+        ImGui::MenuItem("Planet Window", NULL, &showMenuPlanet);
+        ImGui::EndMenu();
+      }
+
+      if (ImGui::BeginMenu("Edit")) {
+        if (ImGui::MenuItem("Undo", "CTRL+Z")) {
+        }
+        if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {
+        } // Disabled item
+        ImGui::Separator();
+        if (ImGui::MenuItem("Cut", "CTRL+X")) {
+        }
+        if (ImGui::MenuItem("Copy", "CTRL+C")) {
+        }
+        if (ImGui::MenuItem("Paste", "CTRL+V")) {
+        }
+        ImGui::EndMenu();
+      }
+      ImGui::EndMainMenuBar();
+    }
+
+    if (showMenuGod) {
+      ImGui::Begin("GodOLD");
+
+      ImGui::SliderFloat("Gravitational Constant", &g, 0.0f, 10.0f,
+                         "ratio = %.3f");
+      uni.setG(g);
+      ImGui::InputInt("Univers Draw Mode", &uniDrawMode, 1);
+
+      ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+                  1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+      ImGui::Text("Planet Count: %d", uni.getPlanetCount());
+      ImGui::Text("Didsomting: %d", didsomting);
+      sf::Vector2f *tempUE = uni.getUniverseExtents();
+      ImGui::Text("Universe Extents: (%f,%f) (%f,%f)", tempUE[0].x, tempUE[0].y,
+                  tempUE[1].x, tempUE[1].y);
+
+      tempUE = uni.getMaxUniverseExtentsSeen();
+      ImGui::Text("Universe Extents: (%f,%f) (%f,%f)", tempUE[0].x, tempUE[0].y,
+                  tempUE[1].x, tempUE[1].y);
+      ImGui::Text("Has Focus %d, imguihas focus %d", hasFocus,
+                  ImGui::IsMouseHoveringAnyWindow());
+      ImGui::End();
+      // Checked item
+    }
+
+    if (showMenuPlanet) {
+      ImGui::Begin("Planet Menu");
+
+      if (ImGui::CollapsingHeader("Add Planet Menu")) {
+        ImGui::InputFloat("Radius", &apr);
+        // ImGui::SameLine();
+        ImGui::InputFloat("Mass", &apm);
+        ImGui::InputFloat("Position X", &appx);
+        // ImGui::SameLine();
+        ImGui::InputFloat("Position Y", &appy);
+        ImGui::InputFloat("Velocity X", &apvx);
+        ImGui::SameLine();
+        ImGui::InputFloat("Velocity Y", &apvy);
+
+        ImGui::ColorEdit3("Color", apc);
+        ImGui::SameLine();
+        ShowHelpMarker("Click on the colored square to change edit "
+                       "mode.\nCTRL+click on individual component to input "
+                       "value.\n");
+        if (ImGui::Button("Add Planet")) {
+          didsomting++;
+          sf::Color color =
+              sf::Color((uint8_t)(apc[0] * 255), (uint8_t)(apc[1] * 255),
+                        (uint8_t)(apc[2] * 255), 255);
+
+          pps::Planet tempPlanet(apr, apm, sf::Vector2f(appx, appy),
+                                 sf::Vector2f(apvx, apvy), color);
+          uni.addPlanet(tempPlanet);
+        }
+      }
+      if (ImGui::CollapsingHeader("Planet List")) {
+        std::vector<pps::Planet> planets = uni.getPlanetsList();
+        // char name[16];
+        for (int i = 0; i < planets.size(); i++) {
+          planets[i].imguiDebugInfo();
+          // ImGui::Text(planets[i].getDebugString());
+          // if (ImGui::CollapsingHeader()) {
+        }
+      }
+      if (ImGui::CollapsingHeader("Global Planet Settings")) {
+        // trails
         if (tl < 0)
           tl = 0;
         if (fd < 0)
           fd = 0;
-        uni.setTrailLength((size_t)tl);
-        uni.setTrailFrameDelay((size_t)fd);
-        uni.setDrawTrails(dt);
+        if (ImGui::CollapsingHeader("Trails")) {
+          ImGui::InputInt("Trails Length", &tl);
+          // ImGui::SameLine();
+          ImGui::InputInt("Frame Delay", &fd);
+          ImGui::Checkbox("Trailes Enabled", &dt);
+
+          if (ImGui::Button("Update Trails")) {
+
+            uni.setTrailLength(tl);
+            uni.setTrailFrameDelay(fd);
+            uni.setDrawTrails(dt);
+          }
+        }
+
+        // apply
       }
+
+      ImGui::Text("Planet Count: %d", uni.getPlanetCount());
+
+      ImGui::End();
     }
-
-    window.clear();
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    ImGui::Text("Planet Count: %d", uni.getPlanetCount());
-    ImGui::Text("Didsomting: %d", didsomting);
-    sf::Vector2f *tempUE = uni.getUniverseExtents();
-    ImGui::Text("Universe Extents: (%f,%f) (%f,%f)", tempUE[0].x, tempUE[0].y,
-                tempUE[1].x, tempUE[1].y);
-
-    tempUE = uni.getMaxUniverseExtentsSeen();
-    ImGui::Text("Universe Extents: (%f,%f) (%f,%f)", tempUE[0].x, tempUE[0].y,
-                tempUE[1].x, tempUE[1].y);
-    ImGui::Text("Has Focus %d, imguihas focus %d", hasFocus,
-                ImGui::IsMouseHoveringAnyWindow());
-    ImGui::End();
 
     // if(Universe.isDrawTrails())
     //  std::vector<sf::VertexArray> trailShapes = uni.getVisibleTrails();
@@ -171,15 +239,22 @@ int main() {
     //      window.draw(trailShapes[i]);//
     //    }
 
-    //    std::vector<sf::CircleShape> planetsShapes = uni.getVisiblePlanets();
+    //    std::vector<sf::CircleShape> planetsShapes =
+    //    uni.getVisiblePlanets();
     // for (size_t i = 0; i < planetsShapes.size(); i++) {
     //      window.draw(planetsShapes[i]);
     //    }
+    //// CLEAR ////
+    window.clear();
 
-    uni.draw(window);
+    //// DRAW /////
+    uni.draw(window); // draw Universe
 
-    ImGui::Render();
-    window.draw(txtFps);
+    ImGui::Render(); // draw ImGui
+
+    // window.draw(txtFps);
+
+    //// DISPLAY ////
     window.display();
   }
 

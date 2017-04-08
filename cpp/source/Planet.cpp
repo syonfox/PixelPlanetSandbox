@@ -1,23 +1,47 @@
 #include "Planet.hpp"
+#include "CircularArray.hpp"
+#include "imgui-SFML.h"
+#include "imgui.h"
 #include <SFML/Graphics.hpp>
+#include <sstream> // std::ostringstream
+#include <string>
 
+pps::Planet::Planet() {
+  radius = 0;
+  mass = 0;
+  position = sf::Vector2f(0, 0);
+  velocity = sf::Vector2f(0, 0);
+  acceleration = sf::Vector2f(0, 0);
+  color = sf::Color::White;
+  shape = sf::CircleShape(radius);
+  shape.setFillColor(color);
+  shape.setOrigin(radius, radius); // r= radius
+  shape.setPosition(position);
+
+  positionHistory = pps::CircularArray(1, position);
+
+  _isTrailEnabled = false;
+  trailLength = 0;
+  trailLine = sf::VertexArray(sf::LinesStrip, 0);
+  trailColor = sf::Color::Green;
+  frameDelay = 100;
+  frameCount = 0;
+}
 pps::Planet::Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
-                    sf::Vector2f ia, sf::Color icolor) {
+                    sf::Color icolor) {
   radius = ir;
   mass = im;
   position = ip;
   velocity = iv;
-  acceleration = ia;
   color = icolor;
   shape = sf::CircleShape(radius);
   shape.setFillColor(color);
   shape.setOrigin(radius, radius); // r= radius
   shape.setPosition(position);
 
-  positionHistory = 0;
-  historyLength = 0;
-  historyFront = 0;
-  drawTrail = false;
+  positionHistory = pps::CircularArray(1, position);
+
+  _isTrailEnabled = false;
   trailLength = 0;
   trailLine = sf::VertexArray(sf::LinesStrip, 0);
   trailColor = sf::Color::Green;
@@ -26,20 +50,44 @@ pps::Planet::Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
 
   enableTrail();
 }
-pps::Planet::~Planet() {
-  printf("test %ld  , m:%f\n", (long)(void *)positionHistory, mass);
-  if (positionHistory != 0)
-    delete[] positionHistory;
+pps::Planet::Planet(const Planet &other) {
+
+  radius = other.radius;
+  mass = other.mass;
+  position = other.position;
+  velocity = other.velocity;
+  color = other.color;
+
+  shape = sf::CircleShape(radius);
+  shape.setFillColor(color);
+  shape.setOrigin(radius, radius); // r= radius
+  shape.setPosition(position);
+
+  positionHistory = pps::CircularArray(other.positionHistory);
+
+  _isTrailEnabled = other._isTrailEnabled;
+  trailLength = other.trailLength;
+  trailLine = sf::VertexArray(sf::LinesStrip, trailLength);
+  trailColor = other.trailColor;
+  frameDelay = other.frameDelay;
+  frameCount = other.frameCount;
 }
-// sf::CircleShape pps::Planet::generateCircleShape() {
-// if complex generation needed
-//}
+
 void pps::Planet::draw(sf::RenderWindow &window) {
   window.draw(shape);
-  if (drawTrail) {
+  if (_isTrailEnabled) {
     window.draw(trailLine);
   }
 }
+
+void pps::Planet::drawPlanet(sf::RenderWindow &window) { window.draw(shape); }
+
+void pps::Planet::drawTrail(sf::RenderWindow &window) {
+  if (_isTrailEnabled) {
+    window.draw(trailLine);
+  }
+}
+
 void pps::Planet::updateSprites(sf::Vector2f orgin, float scale) {
 
   shape.setPosition((position - orgin) *
@@ -49,20 +97,12 @@ void pps::Planet::updateSprites(sf::Vector2f orgin, float scale) {
                             // converts world units to pixels
   shape.setScale(scale, scale);
 
-  if (drawTrail == true) {
-    for (long i = 0; i < trailLength; i++) {
-      size_t index = ((long)historyFront - i) % historyLength;
-
-      printf("i:%zu  ", i);
-      printf("imath:%ld \n", ((long)historyFront - i) % historyLength);
-      printf("p(%f,%f)   ", positionHistory[index].x, positionHistory[index].y);
-      printf("o(%f,%f)\n", orgin.x, orgin.y);
-      sf::Vector2f tempPos;
-      tempPos.x = positionHistory[index].x - orgin.x;
-      tempPos.y = positionHistory[index].y - orgin.y;
-
-      tempPos *= scale;
-      trailLine[i].position = tempPos;
+  if (_isTrailEnabled) {
+    // printf("\n trailLength:%d  hsixe:%d", trailLength,
+    // positionHistory.size());
+    for (int i = 0; i < trailLength; i++) {
+      // printf("%d , ", i);
+      trailLine[i].position = (positionHistory[i] - orgin) * scale;
     }
   }
 }
@@ -82,23 +122,20 @@ void pps::Planet::update(sf::Time dt) {
   position += (velocity * t) + (0.5f * acceleration * (t * t));
   velocity += acceleration * t;
 
-  if (historyLength != 0) {
-    if (frameCount >= frameDelay) {
-      frameCount = 0;
-      historyFront = (historyFront + 1) % historyLength;
-      positionHistory[historyFront] = position;
-    } else {
-      frameCount++;
-    }
+  if (frameCount >= frameDelay) {
+    frameCount = 0;
+    positionHistory.push(position);
+  } else {
+    frameCount++;
   }
 }
 
-bool pps::Planet::isTrailEnabled() { return drawTrail; }
+bool pps::Planet::isTrailEnabled() { return _isTrailEnabled; }
 
-size_t pps::Planet::getTrailLength() { return trailLength; }
+int pps::Planet::getTrailLength() { return trailLength; }
 
 void pps::Planet::setTrailLength(unsigned length) {
-  if (historyLength < length) {
+  if (positionHistory.size() < length) {
     setHistoryLength(length);
   }
   trailLength = length;
@@ -107,63 +144,31 @@ void pps::Planet::setTrailLength(unsigned length) {
 }
 
 void pps::Planet::enableTrail() {
-  if (trailLength == 0) {
-    setTrailLength(50);
-  }
-  if (!drawTrail) {
-    drawTrail = true;
-    if (historyLength < trailLength) {
+
+  if (!_isTrailEnabled) {
+    _isTrailEnabled = true;
+    if (positionHistory.size() < trailLength) {
       setHistoryLength(trailLength);
     }
     trailLine = sf::VertexArray(sf::LinesStrip, trailLength);
-    for (size_t i = 0; i < trailLength; i++) {
+    for (int i = 0; i < trailLength; i++) {
       trailLine[i] = sf::Vertex(position, trailColor);
     }
+    // printf("Enabled trail\n");
   }
 }
+
 void pps::Planet::disableTrail() {
-  drawTrail = false;
-  trailLine = sf::VertexArray(sf::Lines, 0);
+  if (_isTrailEnabled) {
+    _isTrailEnabled = false;
+    trailLine = sf::VertexArray(sf::Lines, 0);
+  }
 }
 
-size_t pps::Planet::getHistoryLength() { return historyLength; }
+int pps::Planet::getHistoryLength() { return positionHistory.size(); }
 
-void pps::Planet::setHistoryLength(size_t length) {
-
-  sf::Vector2f *temp = new sf::Vector2f[length];
-  if (historyLength == 0) {
-    for (long i = 0; i < length; i++) {
-      temp[i] = position;
-    }
-
-    // historyLength = length;
-    // positionHistory = temp;
-    // printf("hll:%zu\n", historyLength);
-    // return;
-  } else if (length <= historyLength) {
-    for (long i = 0; i < length; i++) {
-      temp[length - 1 - i] =
-          positionHistory[(historyFront - i) % historyLength];
-    }
-  } else {
-    for (long i = 0; i < historyLength; i++) {
-      temp[length - 1 - i] =
-          positionHistory[(historyFront - i) % historyLength];
-    }
-
-    size_t lastIndex = (historyFront + 1) % historyLength;
-    for (long i = historyLength; i < length; i++) {
-      temp[i] = positionHistory[lastIndex];
-    }
-  }
-
-  historyLength = length;
-  historyFront = length;
-  printf("bef %ld  , m:%f\n", (long)(void *)positionHistory, mass);
-
-  delete[] positionHistory;
-  positionHistory = temp;
-  printf("aft %ld  , m:%f\n", (long)(void *)positionHistory, mass);
+void pps::Planet::setHistoryLength(int length) {
+  positionHistory.resize(length);
 }
 
 //// FRAME DELAY /////
@@ -180,4 +185,15 @@ sf::CircleShape pps::Planet::getCircleShape(sf::Vector2f orgin, float scale) {
   shape.setScale(scale, scale);
 
   return shape;
+}
+
+void pps::Planet::imguiDebugInfo() const {
+  ImGui::Text("Name:NA UID:NA Mass: %f  Radius: %f", mass, radius);
+  ImGui::Text("Position:     (%f, %f)", position.x, position.y);
+
+  ImGui::Text("Velocity:     (%f, %f)", velocity.x, velocity.y);
+
+  ImGui::Text("Acceleration: (%f, %f)", acceleration.x, acceleration.y);
+  ImGui::Text("History Length: %d  Trail Length: %d  Trail Enabled: %d",
+              positionHistory.size(), trailLength, _isTrailEnabled);
 }

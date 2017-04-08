@@ -1,7 +1,10 @@
 #ifndef PPS_PLANET_H
 #define PPS_PLANET_H
 
+#include "CircularArray.hpp"
 #include <SFML/Graphics.hpp>
+#include <string>
+
 namespace pps {
 
 class Planet {
@@ -16,27 +19,30 @@ private:
   sf::Vector2f velocity;     // velocity
   sf::Vector2f acceleration; // acceleration
 
-  bool drawTrail;
+  bool _isTrailEnabled;
+
   sf::VertexArray trailLine; // Used as a circulaer array updating the last line
-  size_t trailLength;        // number of trail segments
+  int trailLength;           // number of trail segments
 
-  sf::Vector2f *positionHistory;
-
-  size_t historyLength;
-  size_t historyFront; // index of the oldes trail segment
+  pps::CircularArray positionHistory;
 
   unsigned frameDelay; // nomber of frames to skip befor adding a historyPoint
   unsigned frameCount; // counter for the number of frames
 
-  // float r; // idk i think tikness
   sf::Color trailColor;
 
 public:
-  Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv, sf::Vector2f ia,
+  Planet();
+  Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
          sf::Color icolor);
-  ~Planet();
+
+  Planet(const Planet &other);
+
+  //~Planet();
 
   void draw(sf::RenderWindow &window);
+  void drawPlanet(sf::RenderWindow &window);
+  void drawTrail(sf::RenderWindow &window);
 
   void updateSprites(sf::Vector2f orgin, float scale);
 
@@ -58,15 +64,17 @@ public:
   void enableTrail();
   void disableTrail();
 
-  size_t getTrailLength();
+  int getTrailLength();
   void setTrailLength(unsigned length);
 
-  size_t getHistoryLength();
-  void setHistoryLength(size_t length);
+  int getHistoryLength();
+  void setHistoryLength(int length);
 
   unsigned getFrameDelay();
   void setFrameDelay(unsigned delay);
 
+  void imguiDebugInfo() const;
+  const char *getDebugString() const;
   // sf::CircleShape
   // generateCircleShape(); // generates the sprite based on the size and color
   // retuens somting that can be drawen and

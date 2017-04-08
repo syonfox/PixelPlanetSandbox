@@ -1,20 +1,24 @@
-#import "Universe.hpp"
-#import "Planet.hpp"
+#include "Universe.hpp"
+#include "Planet.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
-#import <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include <vector>
 
 pps::Universe::Universe() {
-  planets = {};
+  planets = std::vector<pps::Planet>();
   g = 10;
   maxUniverseExtentsSeen[0] = sf::Vector2f();
   maxUniverseExtentsSeen[1] = sf::Vector2f();
+  drawTrails = false;
 }
 
 void pps::Universe::draw(sf::RenderWindow &window) {
   for (unsigned i = 0; i < planets.size(); i++) {
-    planets[i].draw(window);
+    planets[i].drawTrail(window);
+  }
+  for (unsigned i = 0; i < planets.size(); i++) {
+    planets[i].drawPlanet(window);
   }
 }
 
@@ -25,16 +29,24 @@ void pps::Universe::delPlanet(size_t index) {
     planets.erase(planets.begin() + index);
   }
 }
-void pps::Universe::setTrailLength(size_t length) {
 
-  for (size_t i = 0; i < planets.size(); i++) {
-    planets[i].setTrailLength(length);
+const std::vector<pps::Planet> &pps::Universe::getPlanetsList() {
+  return planets;
+}
+
+void pps::Universe::setTrailLength(int length) {
+  if (length >= 0) {
+    for (int i = 0; i < planets.size(); i++) {
+      planets[i].setTrailLength(length);
+    }
   }
 }
 
-void pps::Universe::setTrailFrameDelay(size_t delay) {
-  for (unsigned i = 0; i < planets.size(); i++) {
-    planets[i].setFrameDelay(delay);
+void pps::Universe::setTrailFrameDelay(int delay) {
+  if (delay >= 0) {
+    for (int i = 0; i < planets.size(); i++) {
+      planets[i].setFrameDelay(delay);
+    }
   }
 }
 
@@ -233,7 +245,7 @@ void pps::Universe::setDrawTrails(bool dt) {
     for (unsigned i = 0; i < planets.size(); i++) {
       planets[i].enableTrail();
     }
-  } else {
+  } else if (!dt && drawTrails) {
     drawTrails = dt;
     for (unsigned i = 0; i < planets.size(); i++) {
       planets[i].disableTrail();

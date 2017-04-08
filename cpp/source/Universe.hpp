@@ -1,8 +1,8 @@
 #ifndef PPS_UNIVERSE_H
 #define PPS_UNIVERSE_H
-#import "Planet.hpp"
-#import <SFML/Graphics.hpp>
-#import <vector>
+#include "Planet.hpp"
+#include <SFML/Graphics.hpp>
+#include <vector>
 
 namespace pps {
 
@@ -20,6 +20,7 @@ private:
 public:
   Universe(void);
   int getPlanetCount(void);
+  const std::vector<Planet> &getPlanetsList();
   void Update(sf::Time dt, int mode,
               sf::Vector2u windowSize); // updates all planet locations
 
@@ -31,9 +32,9 @@ public:
 
   float getG(); // for seting Gravitational constant
   void setG(float sg);
-  void setTrailLength(size_t length); // the number of points that should be
+  void setTrailLength(int length); // the number of points that should be
   // drawen behind each planet
-  void setTrailFrameDelay(size_t delay);
+  void setTrailFrameDelay(int delay);
   void setDrawTrails(bool dt); //
   void addPlanet(Planet p);
   void delPlanet(size_t index); // deletes a planet from the planets at index.
