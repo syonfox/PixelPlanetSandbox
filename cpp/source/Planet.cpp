@@ -23,7 +23,7 @@ pps::Planet::Planet() {
   _isTrailEnabled = false;
   trailLength = 0;
   trailLine = sf::VertexArray(sf::LinesStrip, 0);
-  trailColor = sf::Color::White;
+  trailColor = sf::Color::Blue;
   frameDelay = 100;
   frameCount = 0;
 }
@@ -44,6 +44,7 @@ pps::Planet::Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
   _isTrailEnabled = false;
   trailLength = 0;
   trailLine = sf::VertexArray(sf::LinesStrip, 0);
+
   trailColor = color;
   frameDelay = 100;
   frameCount = 0;
@@ -60,16 +61,19 @@ pps::Planet::Planet(const Planet &other) {
 
   color = other.color;
 
-  shape = sf::CircleShape(radius);
-  shape.setFillColor(color);
-  shape.setOrigin(radius, radius); // r= radius
-  shape.setPosition(position);
+  shape = other.shape;
+  // shape = sf::CircleShape(radius);
+  // shape.setFillColor(color);
+  // shape.setOrigin(radius, radius); // r= radius
+  // shape.setPosition(position);
 
-  positionHistory = pps::CircularArray(other.positionHistory);
+  positionHistory = other.positionHistory;
 
   _isTrailEnabled = other._isTrailEnabled;
   trailLength = other.trailLength;
-  trailLine = sf::VertexArray(sf::LinesStrip, trailLength);
+  // trailLine = sf::VertexArray(sf::LinesStrip, trailLength);
+  trailLine = other.trailLine;
+
   trailColor = other.trailColor;
   frameDelay = other.frameDelay;
   frameCount = other.frameCount;
@@ -199,6 +203,13 @@ void pps::Planet::imguiDebugInfo() const {
   ImGui::Text("Acceleration: (%f, %f)", acceleration.x, acceleration.y);
   ImGui::Text("History Length: %d  Trail Length: %d  Trail Enabled: %d",
               positionHistory.size(), trailLength, _isTrailEnabled);
+  ImGui::Text("Planet Color:(%d,%d,%d,%d) Trail Color: (%d,%d,%d,%d) ", color.r,
+              color.g, color.b, color.a, trailColor.r, trailColor.g,
+              trailColor.b, trailColor.a);
+  if (trailLength > 1 && _isTrailEnabled)
+    ImGui::Text("Trail Line Color:(%d,%d,%d,%d) ", trailLine[0].color.r,
+                trailLine[0].color.g, trailLine[0].color.b,
+                trailLine[0].color.a);
 
   ImGui::Text("Frame Delay: %d  Frame Count: %d", frameDelay, frameCount);
 }
