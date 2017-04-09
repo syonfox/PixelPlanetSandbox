@@ -23,7 +23,7 @@ pps::Planet::Planet() {
   _isTrailEnabled = false;
   trailLength = 0;
   trailLine = sf::VertexArray(sf::LinesStrip, 0);
-  trailColor = sf::Color::Green;
+  trailColor = sf::Color::White;
   frameDelay = 100;
   frameCount = 0;
 }
@@ -44,7 +44,7 @@ pps::Planet::Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
   _isTrailEnabled = false;
   trailLength = 0;
   trailLine = sf::VertexArray(sf::LinesStrip, 0);
-  trailColor = sf::Color::Green;
+  trailColor = color;
   frameDelay = 100;
   frameCount = 0;
 
