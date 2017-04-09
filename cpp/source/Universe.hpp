@@ -38,6 +38,8 @@ public:
   void setDrawTrails(bool dt); //
   void addPlanet(Planet p);
   void delPlanet(size_t index); // deletes a planet from the planets at index.
+
+  void imguiPlanetsList();
 };
 }
 #endif /* end of include guard: PPS_UNIVERSE_H */

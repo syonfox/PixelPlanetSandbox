@@ -9,7 +9,33 @@ namespace pps {
 
 class Planet {
 
+  class ImGuiData { // glorified struct
+  public:
+    //  bool editOnChange;
+    const static size_t nameLength = 64;
+    char nameBuf[nameLength];
+    bool nameEnabled;
+    float m;
+    float r;
+    float p[2];
+    float v[2];
+    int trailLength;
+    int historyLength;
+    bool trailEnabled;
+    int frameDelay;
+
+    float planetColor[3];
+    float trailColor[3];
+  };
+
 private:
+  static sf::Font font;
+  static sf::Font initFont();
+
+  std::string name;
+  sf::Text textName;
+  bool _isNameEnabled;
+
   sf::CircleShape shape; // the sprite
   sf::Color color;       // the panat base color
   // sf::VertexArray va;//for complex planets
@@ -31,14 +57,18 @@ private:
 
   sf::Color trailColor;
 
+  ImGuiData *imguiData;
+  void setupImGuiData();
+  void deleteImGuiData();
+
 public:
   Planet();
-  Planet(float ir, float im, sf::Vector2f ip, sf::Vector2f iv,
-         sf::Color icolor);
+  Planet(std::string iname, float ir, float im, sf::Vector2f ip,
+         sf::Vector2f iv, sf::Color icolor);
 
   Planet(const Planet &other);
 
-  //~Planet();
+  ~Planet();
 
   void draw(sf::RenderWindow &window);
   void drawPlanet(sf::RenderWindow &window);
@@ -55,6 +85,12 @@ public:
   void setPosition(sf::Vector2f p);
   void setVelocity(sf::Vector2f v);
   void setAcceleration(sf::Vector2f a);
+
+  std::string getName();
+  bool isNameEnabled();
+
+  void setName(std::string n);
+  void setIsNameEnabled(bool ine);
 
   void update(sf::Time dt);
 
@@ -74,8 +110,9 @@ public:
   void setFrameDelay(unsigned delay);
 
   void imguiDebugInfo() const;
-  void imguiDebugMenu() const;
+  void imguiDebugMenu();
 
+  static void SetFont(sf::Font f);
   //  const char *getDebugString() const;
   // sf::CircleShape
   // generateCircleShape(); // generates the sprite based on the size and color

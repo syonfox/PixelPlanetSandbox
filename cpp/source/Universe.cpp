@@ -253,6 +253,25 @@ void pps::Universe::setDrawTrails(bool dt) {
   }
 }
 
+////////////////////////////////////
+// IMGUI STUFF
+////////////////////////////////////
+
+void pps::Universe::imguiPlanetsList() {
+
+  if (ImGui::CollapsingHeader("Planet List")) {
+
+    for (size_t i = 0; i < planets.size(); i++) {
+
+      ImGui::PushID(i);
+      // planets[i].imguiDebugInfo();
+      planets[i].imguiDebugMenu();
+
+      ImGui::PopID();
+    }
+  }
+}
+
 // std::vector<sf::CircleShape> pps::Universe::getVisiblePlanets() { return vps;
 // }
 // std::vector<sf::VertexArray> pps::Universe::getVisibleTrails() {

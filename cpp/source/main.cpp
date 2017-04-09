@@ -33,7 +33,12 @@ int main() {
   static bool hasFocus = true;
 
   sf::Font fontCapture;
-  fontCapture.loadFromFile("res/Capture_it.ttf");
+  // pps::Planet::font = sf::Font();
+  // if (!pps::Planet::font.loadFromFile("res/Capture_it.ttf")) {
+  //  return 22;
+  //}
+
+  // pps::Planet::SetFont(fontCapture);
 
   sf::Text txtFps;
   txtFps.setFont(fontCapture);
@@ -60,9 +65,9 @@ int main() {
   float apc[3] = {1.0f, 0.0f, 0.2f};
 
   pps::Universe uni;
-  pps::Planet p1(10, 91, sf::Vector2f(200, 200), sf::Vector2f(0, 20),
+  pps::Planet p1("Foo", 10, 91, sf::Vector2f(200, 200), sf::Vector2f(0, 20),
                  sf::Color::Red);
-  pps::Planet p2(50, 92, sf::Vector2f(400, 200), sf::Vector2f(0, -20),
+  pps::Planet p2("Bar", 50, 92, sf::Vector2f(400, 200), sf::Vector2f(0, -20),
                  sf::Color::Blue);
   uni.addPlanet(p1);
   uni.addPlanet(p2);
@@ -193,27 +198,26 @@ int main() {
               sf::Color((uint8_t)(apc[0] * 255), (uint8_t)(apc[1] * 255),
                         (uint8_t)(apc[2] * 255), 255);
 
-          pps::Planet tempPlanet(apr, apm, sf::Vector2f(appx, appy),
+          pps::Planet tempPlanet("FooBar", apr, apm, sf::Vector2f(appx, appy),
                                  sf::Vector2f(apvx, apvy), color);
           uni.addPlanet(tempPlanet);
         }
       }
+      uni.imguiPlanetsList();
+      /*
       if (ImGui::CollapsingHeader("Planet List")) {
-
         const std::vector<pps::Planet> *const planets = uni.getPlanetsList();
 
-        // char name[16];
         for (int i = 0; i < (*planets).size(); i++) {
-          //  printf("mainAcceleratin: (%f, %f)\n",
-          //   (*planets)[i].getAcceleration().x,
-          // (*planets)[i].getAcceleration().y);
+
+          ImGui::PushID(i);
           (*planets)[i].imguiDebugInfo();
           (*planets)[i].imguiDebugMenu();
 
-          // ImGui::Text(planets[i].getDebugString());
-          // if (ImGui::CollapsingHeader()) {
-        }
+          ImGui::PopID();
+
       }
+    }*/
       if (ImGui::CollapsingHeader("Global Planet Settings")) {
         // trails
         if (tl < 0)

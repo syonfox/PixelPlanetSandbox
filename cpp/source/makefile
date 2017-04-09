@@ -36,4 +36,4 @@ catest: testCA.o CircularArray.o
 
 
 clean:
-	rm *.o pps
+	rm *.o pps catest
