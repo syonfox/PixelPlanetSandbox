@@ -56,6 +56,8 @@ pps::Planet::Planet(const Planet &other) {
   mass = other.mass;
   position = other.position;
   velocity = other.velocity;
+  // acceleration = other.acceleration;
+
   color = other.color;
 
   shape = sf::CircleShape(radius);
@@ -188,7 +190,8 @@ sf::CircleShape pps::Planet::getCircleShape(sf::Vector2f orgin, float scale) {
 }
 
 void pps::Planet::imguiDebugInfo() const {
-  ImGui::Text("Name:NA UID:NA Mass: %f  Radius: %f", mass, radius);
+
+  ImGui::Text("Mass: %f  Radius: %f", mass, radius);
   ImGui::Text("Position:     (%f, %f)", position.x, position.y);
 
   ImGui::Text("Velocity:     (%f, %f)", velocity.x, velocity.y);
@@ -196,4 +199,18 @@ void pps::Planet::imguiDebugInfo() const {
   ImGui::Text("Acceleration: (%f, %f)", acceleration.x, acceleration.y);
   ImGui::Text("History Length: %d  Trail Length: %d  Trail Enabled: %d",
               positionHistory.size(), trailLength, _isTrailEnabled);
+
+  ImGui::Text("Frame Delay: %d  Frame Count: %d", frameDelay, frameCount);
+}
+
+void pps::Planet::imguiDebugMenu() const {
+  if (ImGui::CollapsingHeader("Planet Name")) {
+    ImGui::Text("Name:NA");
+  }
+  // ImGui::InputFloat("Position X", );
+  // ImGui::SameLine();
+  // ImGui::InputFloat("Position Y", &appy);
+  // ImGui::InputFloat("Velocity X", &apvx);
+  // ImGui::SameLine();
+  // ImGui::InputFloat("Velocity Y", &apvy);
 }

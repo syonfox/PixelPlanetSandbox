@@ -20,7 +20,7 @@ private:
 public:
   Universe(void);
   int getPlanetCount(void);
-  const std::vector<Planet> &getPlanetsList();
+  const std::vector<Planet> *const getPlanetsList();
   void Update(sf::Time dt, int mode,
               sf::Vector2u windowSize); // updates all planet locations
 

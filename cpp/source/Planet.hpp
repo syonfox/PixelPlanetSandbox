@@ -74,7 +74,9 @@ public:
   void setFrameDelay(unsigned delay);
 
   void imguiDebugInfo() const;
-  const char *getDebugString() const;
+  void imguiDebugMenu() const;
+
+  //  const char *getDebugString() const;
   // sf::CircleShape
   // generateCircleShape(); // generates the sprite based on the size and color
   // retuens somting that can be drawen and

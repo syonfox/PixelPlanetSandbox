@@ -107,6 +107,8 @@ int main() {
     // update Universe
     uni.Update(deltaClock.getElapsedTime(), uniDrawMode, window.getSize());
 
+    // char name[16];
+
     /////GUI LOGIC /////
     if (ImGui::BeginMainMenuBar()) {
       if (ImGui::BeginMenu("File")) {
@@ -197,10 +199,17 @@ int main() {
         }
       }
       if (ImGui::CollapsingHeader("Planet List")) {
-        std::vector<pps::Planet> planets = uni.getPlanetsList();
+
+        const std::vector<pps::Planet> *const planets = uni.getPlanetsList();
+
         // char name[16];
-        for (int i = 0; i < planets.size(); i++) {
-          planets[i].imguiDebugInfo();
+        for (int i = 0; i < (*planets).size(); i++) {
+          //  printf("mainAcceleratin: (%f, %f)\n",
+          //   (*planets)[i].getAcceleration().x,
+          // (*planets)[i].getAcceleration().y);
+          (*planets)[i].imguiDebugInfo();
+          (*planets)[i].imguiDebugMenu();
+
           // ImGui::Text(planets[i].getDebugString());
           // if (ImGui::CollapsingHeader()) {
         }

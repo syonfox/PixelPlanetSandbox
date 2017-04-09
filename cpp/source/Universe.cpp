@@ -30,8 +30,8 @@ void pps::Universe::delPlanet(size_t index) {
   }
 }
 
-const std::vector<pps::Planet> &pps::Universe::getPlanetsList() {
-  return planets;
+const std::vector<pps::Planet> *const pps::Universe::getPlanetsList() {
+  return &planets;
 }
 
 void pps::Universe::setTrailLength(int length) {
