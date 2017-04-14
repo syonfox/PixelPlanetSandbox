@@ -49,12 +49,12 @@ int main() {
   bool showMenuPlanet = false;
   float g = 10;
   // add planet vars;
-  float apr = 10;
-  float apm = 100;
-  float appx = 1;
-  float appy = 2;
-  float apvx = 3;
-  float apvy = 4;
+  // float apr = 10;
+  // float apm = 100;
+  ////  float appx = 1;
+  //  float appy = 2;
+  //  float apvx = 3;
+  // float apvy = 4;
 
   // trails vars
   int tl = 100;
@@ -62,7 +62,7 @@ int main() {
   bool dt = true;
   int uniDrawMode = 0;
 
-  float apc[3] = {1.0f, 0.0f, 0.2f};
+  // float apc[3] = {1.0f, 0.0f, 0.2f};
 
   pps::Universe uni;
   pps::Planet p1("Foo", 10, 91, sf::Vector2f(200, 200), sf::Vector2f(0, 20),
@@ -176,33 +176,34 @@ int main() {
     if (showMenuPlanet) {
       ImGui::Begin("Planet Menu");
 
-      if (ImGui::CollapsingHeader("Add Planet Menu")) {
-        ImGui::InputFloat("Radius", &apr);
-        // ImGui::SameLine();
-        ImGui::InputFloat("Mass", &apm);
-        ImGui::InputFloat("Position X", &appx);
-        // ImGui::SameLine();
-        ImGui::InputFloat("Position Y", &appy);
-        ImGui::InputFloat("Velocity X", &apvx);
-        ImGui::SameLine();
-        ImGui::InputFloat("Velocity Y", &apvy);
+      uni.imguiPlanetMenu();
+      /*  if (ImGui::CollapsingHeader("Add Planet Menu")) {
+          ImGui::InputFloat("Radius", &apr);
+          // ImGui::SameLine();
+          ImGui::InputFloat("Mass", &apm);
+          ImGui::InputFloat("Position X", &appx);
+          // ImGui::SameLine();
+          ImGui::InputFloat("Position Y", &appy);
+          ImGui::InputFloat("Velocity X", &apvx);
+          ImGui::SameLine();
+          ImGui::InputFloat("Velocity Y", &apvy);
 
-        ImGui::ColorEdit3("Color", apc);
-        ImGui::SameLine();
-        ShowHelpMarker("Click on the colored square to change edit "
-                       "mode.\nCTRL+click on individual component to input "
-                       "value.\n");
-        if (ImGui::Button("Add Planet")) {
-          didsomting++;
-          sf::Color color =
-              sf::Color((uint8_t)(apc[0] * 255), (uint8_t)(apc[1] * 255),
-                        (uint8_t)(apc[2] * 255), 255);
+          ImGui::ColorEdit3("Color", apc);
+          ImGui::SameLine();
+          ShowHelpMarker("Click on the colored square to change edit "
+                         "mode.\nCTRL+click on individual component to input "
+                         "value.\n");
+          if (ImGui::Button("Add Planet")) {
+            didsomting++;
+            sf::Color color =
+                sf::Color((uint8_t)(apc[0] * 255), (uint8_t)(apc[1] * 255),
+                          (uint8_t)(apc[2] * 255), 255);
 
-          pps::Planet tempPlanet("FooBar", apr, apm, sf::Vector2f(appx, appy),
-                                 sf::Vector2f(apvx, apvy), color);
-          uni.addPlanet(tempPlanet);
-        }
-      }
+            pps::Planet tempPlanet("FooBar", apr, apm, sf::Vector2f(appx, appy),
+                                   sf::Vector2f(apvx, apvy), color);
+            uni.addPlanet(tempPlanet);
+          }*/
+
       uni.imguiPlanetsList();
       /*
       if (ImGui::CollapsingHeader("Planet List")) {

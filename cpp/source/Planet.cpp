@@ -3,10 +3,35 @@
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include <SFML/Graphics.hpp>
+#include <cmath>
 #include <sstream> // std::ostringstream
 #include <string>
 
 // void pps::Planet::SetFont(sf::Font *f) { font = f; }
+
+pps::Planet pps::Planet::CombinedPlanets(pps::Planet &a, pps::Planet &b) {
+  std::string n = a.name + "_" + b.name;
+
+  float r = sqrt(pow(a.radius, 2) + pow(b.radius, 2));
+
+  float m = a.mass + b.mass;
+  // mam and mbm are weights put on each of the phisics
+  // paramaters so that the system is adgusted right
+  float mam = a.mass / m;
+  float mbm = b.mass / m;
+  // v = ma*va/m + mb*vb/m
+  // conservation of mmomentim
+  sf::Vector2f v = a.velocity * (mam) + (b.velocity * (mbm));
+  // center of mass
+  sf::Vector2f p = a.position * (mam) + (b.position * (mbm));
+
+  // do somting cooler with colors
+  sf::Color color =
+      sf::Color((a.color.r + b.color.r) / 2, (a.color.g + b.color.g) / 2,
+                (a.color.b + b.color.b) / 2);
+
+  return pps::Planet(n, r, m, p, v, color);
+}
 
 sf::Font pps::Planet::font = initFont();
 
@@ -112,6 +137,38 @@ pps::Planet::Planet(const Planet &other) {
 
 pps::Planet::~Planet() { deleteImGuiData(); }
 
+/*
+pps::Planet &pps::Planet::operator=(const pps::Planet &other) {
+
+  name = other.name;
+  _isNameEnabled = other._isNameEnabled;
+  radius = other.radius;
+  mass = other.mass;
+  position = other.position;
+  velocity = other.velocity;
+  // acceleration = other.acceleration;
+
+  color = other.color;
+
+  shape = other.shape;
+
+  textName = other.textName;
+
+  positionHistory = other.positionHistory;
+
+  _isTrailEnabled = other._isTrailEnabled;
+  trailLength = other.trailLength;
+
+  trailLine = other.trailLine;
+
+  trailColor = other.trailColor;
+  frameDelay = other.frameDelay;
+  frameCount = other.frameCount;
+
+  imguiData = nullptr;
+  return *this;
+}
+*/
 void pps::Planet::setupImGuiData() {
   imguiData = new ImGuiData();
 
@@ -198,6 +255,7 @@ sf::Vector2f pps::Planet::getAcceleration() { return acceleration; }
 void pps::Planet::setPosition(sf::Vector2f p) { position = p; }
 void pps::Planet::setVelocity(sf::Vector2f v) { velocity = v; }
 void pps::Planet::setAcceleration(sf::Vector2f a) { acceleration = a; }
+void pps::Planet::incAcceleration(sf::Vector2f a) { acceleration += a; }
 
 std::string pps::Planet::getName() { return name; }
 bool pps::Planet::isNameEnabled() { return _isNameEnabled; }
@@ -306,13 +364,18 @@ void pps::Planet::imguiDebugInfo() const {
 }
 
 void pps::Planet::imguiDebugMenu() {
+  ImGui::Indent(10.0f);
 
   if (ImGui::CollapsingHeader(name.c_str())) {
+    ImGui::Indent(10.0f);
     if (ImGui::CollapsingHeader("Propertys")) {
+      ImGui::Indent(10.0f);
       imguiDebugInfo();
+      ImGui::Unindent(10.0f);
     }
 
     if (ImGui::CollapsingHeader("Edit")) {
+      ImGui::Indent(10.0f);
 
       if (imguiData == nullptr)
         setupImGuiData();
@@ -401,9 +464,11 @@ void pps::Planet::imguiDebugMenu() {
         setIsNameEnabled(imguiData->nameEnabled);
       }
 
+      ImGui::Unindent(10.0f);
     } else if (imguiData == nullptr) {
       deleteImGuiData();
     }
+    ImGui::Unindent(10.0f);
 
     // ImGui::InputFloat("Position X", );
     // ImGui::SameLine();
@@ -412,4 +477,5 @@ void pps::Planet::imguiDebugMenu() {
     // ImGui::SameLine();
     // ImGui::InputFloat("Velocity Y", &apvy);
   }
+  ImGui::Unindent(10.0f);
 }

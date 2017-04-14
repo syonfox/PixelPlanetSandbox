@@ -1,6 +1,7 @@
 #ifndef PPS_PLANET_H
 #define PPS_PLANET_H
 
+#define PI 3.14159265359
 #include "CircularArray.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
@@ -62,6 +63,8 @@ private:
   void deleteImGuiData();
 
 public:
+  static Planet CombinedPlanets(Planet &a, Planet &b);
+
   Planet();
   Planet(std::string iname, float ir, float im, sf::Vector2f ip,
          sf::Vector2f iv, sf::Color icolor);
@@ -69,6 +72,8 @@ public:
   Planet(const Planet &other);
 
   ~Planet();
+
+  // Planet &operator=(const Planet &other);
 
   void draw(sf::RenderWindow &window);
   void drawPlanet(sf::RenderWindow &window);
@@ -85,6 +90,7 @@ public:
   void setPosition(sf::Vector2f p);
   void setVelocity(sf::Vector2f v);
   void setAcceleration(sf::Vector2f a);
+  void incAcceleration(sf::Vector2f a);
 
   std::string getName();
   bool isNameEnabled();

@@ -3,6 +3,7 @@
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include <SFML/Graphics.hpp>
+#include <cmath>
 #include <vector>
 
 pps::Universe::Universe() {
@@ -30,9 +31,9 @@ void pps::Universe::delPlanet(size_t index) {
   }
 }
 
-const std::vector<pps::Planet> *const pps::Universe::getPlanetsList() {
-  return &planets;
-}
+// const std::vector<pps::Planet> *const pps::Universe::getPlanetsList() {
+//  return &planets;
+//}
 
 void pps::Universe::setTrailLength(int length) {
   if (length >= 0) {
@@ -80,34 +81,37 @@ void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
     for (j = i + 1; j < numPlanets; j++) {
 
       // get force to the distence between the planets
-      sf::Vector2f force =
+      sf::Vector2f distance =
           planets[j].getPosition() - (planets[i].getPosition());
 
+      float edgeDisplacment = sqrt(pow(distance.x, 2) + pow(distance.y, 2)) -
+                              (planets[i].getRadius() + planets[j].getRadius());
+
+      if (edgeDisplacment <= 0) {
+        queueColision(i, j);
+      }
+
       // dont want to devide by 0 thanks dad :P
-      if (force.x != 0 && force.y != 0) {
-        force = force * ((g * planets[i].getMass() * planets[j].getMass()) /
-                         ((force.x * force.x) +
-                          (force.y * force.y))); // length before squareroot
+      if (distance.x != 0 && distance.y != 0) {
+        // F = G(mi*mj / r^2)
+        // r = sqrt(x^2 + y^2)
+        sf::Vector2f force =
+            distance *
+            ((g * planets[i].getMass() * planets[j].getMass()) /
+             ((distance.x * distance.x) +
+              (distance.y * distance.y))); // length before squareroot
 
         // finde the acceleration of planet i due to j
-        sf::Vector2f acceleration = force * (1 / planets[i].getMass());
+        // F = ma => a = F/m
+        sf::Vector2f acceleration = force / planets[i].getMass();
         // add that acceleration to the runing total for i
         accelerations[i] += acceleration;
         // same for planet j
-        acceleration = force * (-1 / planets[j].getMass());
+        acceleration = (-force) / planets[j].getMass();
         accelerations[j] += acceleration;
-
-      } else {
-        // destQ.push(i);
-        // destQ.push(j);
-        // destruct TODO:
       }
     }
   }
-
-  // if(destQ.length != 0) {
-  //  destQ = removeDups(destQ);
-  //}
 
   // update planet positions
 
@@ -118,8 +122,39 @@ void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
 
   delete[] accelerations;
 
+  handleColisons();
+
   // updateVisiblePlanetShapes(mode, windowSize);
   updateViewPort(mode, windowSize);
+}
+
+void pps::Universe::queueColision(size_t i, size_t j) {
+  // searchfor i or j
+  colisionList.push_back(i);
+  colisionList.push_back(j);
+}
+void pps::Universe::handleColisons() {
+  size_t i = 0; // for loops
+  size_t j = 0; // for loops
+
+  for (i = 0; i < colisionList.size(); i += 2) {
+    printf("combind(%lu, %lu)\n", colisionList[i], colisionList[i + 1]);
+    planets[colisionList[i]] = pps::Planet::CombinedPlanets(
+        planets[colisionList[i]], planets[colisionList[i + 1]]);
+
+    planets[colisionList[i + 1]] = planets[planets.size() - 1];
+    planets.pop_back();
+
+    for (j = i; j < colisionList.size(); j++) {
+      // if the planet got moved to fikll the hole
+      if (colisionList[j] == planets.size()) { // if was old last elm
+        colisionList[j] = i + 1;               // then its now in d2
+      } else if (colisionList[j] == colisionList[i + 1]) {
+        colisionList[j] = i;
+      }
+    }
+  }
+  colisionList.clear();
 }
 
 void pps::Universe::updateViewPort(int mode, sf::Vector2u windowSize) {
@@ -257,6 +292,38 @@ void pps::Universe::setDrawTrails(bool dt) {
 // IMGUI STUFF
 ////////////////////////////////////
 
+void pps::Universe::imguiPlanetMenu() {
+
+  if (ImGui::CollapsingHeader("Add Planet Menu")) {
+    ImGui::Indent(10.0f);
+    ImGui::InputText("Name", imguiData.addPlanetNameBuf,
+                     imguiData.addPlanetNameBufLength);
+    ImGui::InputFloat("Radius", &imguiData.addPlanetRadius);
+    // ImGui::SameLine();
+    ImGui::InputFloat("Mass", &imguiData.addPlanetMass);
+    ImGui::InputFloat2("Position", imguiData.addPlanetPosition);
+    ImGui::InputFloat2("Velocity", imguiData.addPlanetVelocity);
+    ImGui::ColorEdit3("Color", imguiData.addPlanetColor);
+
+    if (ImGui::Button("Add Planet")) {
+      sf::Color color =
+          sf::Color((uint8_t)(imguiData.addPlanetColor[0] * 255),
+                    (uint8_t)(imguiData.addPlanetColor[1] * 255),
+                    (uint8_t)(imguiData.addPlanetColor[2] * 255), 255);
+
+      pps::Planet tempPlanet(std::string(imguiData.addPlanetNameBuf),
+                             imguiData.addPlanetRadius, imguiData.addPlanetMass,
+                             sf::Vector2f(imguiData.addPlanetPosition[0],
+                                          imguiData.addPlanetPosition[1]),
+                             sf::Vector2f(imguiData.addPlanetVelocity[0],
+                                          imguiData.addPlanetVelocity[1]),
+                             color);
+      addPlanet(tempPlanet);
+      ImGui::Indent(0.0f);
+    }
+  }
+}
+
 void pps::Universe::imguiPlanetsList() {
 
   if (ImGui::CollapsingHeader("Planet List")) {
@@ -272,7 +339,8 @@ void pps::Universe::imguiPlanetsList() {
   }
 }
 
-// std::vector<sf::CircleShape> pps::Universe::getVisiblePlanets() { return vps;
+// std::vector<sf::CircleShape> pps::Universe::getVisiblePlanets() { return
+// vps;
 // }
 // std::vector<sf::VertexArray> pps::Universe::getVisibleTrails() {
 //  if (drawTrails) {
