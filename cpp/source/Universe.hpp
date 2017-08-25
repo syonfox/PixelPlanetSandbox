@@ -14,18 +14,18 @@ class Universe {
     //  bool editOnChange;
 
     const static size_t addPlanetNameBufLength = 64;
-    char addPlanetNameBuf[addPlanetNameBufLength];
+    char addPlanetNameBuf[addPlanetNameBufLength] = "test";
 
-    float addPlanetMass;
-    float addPlanetRadius;
-    float addPlanetPosition[2];
-    float addPlanetVelocity[2];
+    float addPlanetMass = 0;
+    float addPlanetRadius = 0;
+    float addPlanetPosition[2] = {0, 0};
+    float addPlanetVelocity[2] = {0, 0};
     // int trailLength;
     // int historyLength;
     // bool trailEnabled;
     // int frameDelay;
 
-    float addPlanetColor[3];
+    float addPlanetColor[3] = {1, 1, 1};
     // float trailColor[3];
   };
 

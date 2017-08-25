@@ -1,5 +1,5 @@
-#include "Planet.hpp"
 #include "CircularArray.hpp"
+#include "Planet.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include <SFML/Graphics.hpp>
@@ -73,6 +73,7 @@ pps::Planet::Planet() {
 }
 pps::Planet::Planet(std::string iname, float ir, float im, sf::Vector2f ip,
                     sf::Vector2f iv, sf::Color icolor) {
+
   name = iname;
   _isNameEnabled = false;
   radius = ir;

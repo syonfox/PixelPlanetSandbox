@@ -1,5 +1,5 @@
-#include "Universe.hpp"
 #include "Planet.hpp"
+#include "Universe.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include <SFML/Graphics.hpp>
@@ -91,8 +91,9 @@ void pps::Universe::Update(sf::Time dt, int mode, sf::Vector2u windowSize) {
         queueColision(i, j);
       }
 
-      // dont want to devide by 0 thanks dad :P
-      if (distance.x != 0 && distance.y != 0) {
+      // dont want to devide by 0 thanks dad :P ...you forgot mass devide by 0
+      if (distance.x != 0 && distance.y != 0 && planets[i].getMass() != 0 &&
+          planets[j].getMass() != 0) {
         // F = G(mi*mj / r^2)
         // r = sqrt(x^2 + y^2)
         sf::Vector2f force =
