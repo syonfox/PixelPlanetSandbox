@@ -68,19 +68,25 @@ int main() {
   uni.setDrawTrails(true);
 
   // timing
-  printf("dsfs\n");
+  /*
+  how the game timing works
+  tickTime is the number of sim time per tick
+
+  */
 
   uint tick = 0;
-  sf::Time tickTime =
-      sf::seconds(0.01f);    // the amount of time to simulate every tick
-  int ticksPerSecond = 1200; // number of ticks to simulate evry second
+  sf::Time tickTime = sf::seconds(0.01f); // the amount of time to simulate
+                                          // every tick (adjust this to change
+                                          // the acuracy of the sim)
+  int ticksPerSecond = 600; // number of ticks to simulate evry second (adjust
+                            // this to change the sppd** (kind of)
+  float simTimePerSecond = tickTime.asSeconds() * ticksPerSecond;
   sf::Time secondsPerTick = sf::seconds(1.0f / ticksPerSecond);
 
-  int framesPerSecond = 120;
+  int framesPerSecond = 120; // desired render rate
   int ticksPerFrame =
       ticksPerSecond /
-      framesPerSecond; // todo make it adgust fps for valid ratio
-  printf("asdasd\n");
+      framesPerSecond; // todo: make it adgust fps for valid ratio
   sf::Time secondsPerFrame = sf::seconds(1.0f / framesPerSecond);
   /*
   clock.resart()
@@ -97,7 +103,6 @@ int main() {
   /*
   Main loop
    */
-  printf("ghashjfdksf\n");
   while (window.isOpen()) {
     deltaClock.restart();
     tick++;
@@ -192,6 +197,18 @@ int main() {
                     tempUE[0].y, tempUE[1].x, tempUE[1].y);
         ImGui::Text("Has Focus %d, imguihas focus %d", hasFocus,
                     ImGui::IsMouseHoveringAnyWindow());
+
+        if (ImGui::CollapsingHeader("Time")) {
+          /// ImGui::InputFloat("Time Simulated per Tick",
+          /// &(tickTime.asSeconds(), 1);
+          ImGui::InputFloat("Speed (sim seconds/second)", &simTimePerSecond, 1);
+          ImGui::Text("ticksPerSecond: %d", ticksPerSecond);
+
+          ticksPerSecond = (int)simTimePerSecond / tickTime.asSeconds();
+          simTimePerSecond = tickTime.asSeconds() * ticksPerSecond;
+          secondsPerTick = sf::seconds(1.0f / ticksPerSecond);
+          ticksPerFrame = ticksPerSecond / framesPerSecond;
+        }
         ImGui::End();
         // Checked item
       }
